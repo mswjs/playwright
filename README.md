@@ -19,7 +19,7 @@ await page.evaluate(() => {
 
 This package aims to provide a better developer experience when mocking APIs in Playwright.
 
-> Until we ship [cross-process request interception](https://github.com/mswjs/msw/pull/1617), `@msw/playwright` will rely on the `page.route()` API to provision the request interception in your tests. That also means you _don't have to initialize the worker script_ to use this package. Treat this as an implementation detail that is likely to change in the future.
+> Until we ship [cross-process request interception](https://github.com/mswjs/msw/pull/1617), `@msw/playwright` will rely on the `page.route()` API to provision the request interception in your tests. That means you _don't have to initialize the worker script_ to use this package. That also means that any `page.route()` limitations now affect this library. Treat this as an implementation detail that is likely to change in the future.
 
 ## Usage
 
