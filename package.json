@@ -3,10 +3,18 @@
   "name": "@msw/playwright",
   "version": "0.0.0",
   "description": "Mock Service Worker binding for Playwright",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "scripts": {
+    "dev": "tsdown --watch",
     "test": "playwright test",
+    "build": "tsdown",
     "release": "release publish"
   },
+  "files": [
+    "./src",
+    "./build"
+  ],
   "keywords": [
     "playwright",
     "api",
@@ -28,6 +36,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "peerDependencies": {
     "msw": "^2.9.0"
   },
@@ -36,6 +47,7 @@
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.29",
     "msw": "^2.9.0",
+    "tsdown": "^0.12.7",
     "typescript": "^5.8.3"
   }
 }
