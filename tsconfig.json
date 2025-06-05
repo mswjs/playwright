@@ -1,0 +1,12 @@
+{
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": true,
+    "target": "esnext",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@msw/playwright",
+  "version": "0.0.0",
+  "description": "Mock Service Worker binding for Playwright",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "license": "MIT",
+  "funding": "https://github.com/sponsors/mswjs",
+  "homepage": "https://mswjs.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mswjs/playwright.git"
+  },
+  "author": {
+    "name": "Artem Zakharchenko",
+    "url": "https://github.com/kettanaito"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "msw": "^2.9.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "msw": "^2.9.0",
+    "typescript": "^5.8.3"
+  }
+}
