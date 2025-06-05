@@ -1,12 +1,12 @@
 {
-  "include": ["src"],
+  "include": ["./src", "./tests"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "strict": true,
     "skipLibCheck": true,
     "target": "esnext",
-    "module": "preserve",
-    "moduleResolution": "bundler",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "verbatimModuleSyntax": true
   }
 }

@@ -1,9 +1,10 @@
 {
+  "type": "module",
   "name": "@msw/playwright",
   "version": "0.0.0",
   "description": "Mock Service Worker binding for Playwright",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test"
   },
   "keywords": [],
   "license": "MIT",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.29",
     "msw": "^2.9.0",
     "typescript": "^5.8.3"
   }
