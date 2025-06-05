@@ -6,8 +6,12 @@ import {
   getResponse,
 } from 'msw'
 
+export interface WorkerFixtureProps {
+  initialHandlers: Array<RequestHandler>
+}
+
 export function createWorkerFixture(
-  initialHandlers: Array<RequestHandler> = [],
+  { initialHandlers }: WorkerFixtureProps = { initialHandlers: [] },
   /** @todo `onUnhandledRequest`? */
 ): TestFixture<WorkerFixture, any> {
   return async ({ page }, use) => {
