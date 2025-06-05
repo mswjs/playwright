@@ -24,7 +24,7 @@ This package aims to provide a better developer experience when mocking APIs in 
 ## Usage
 
 ```sh
-npm i @msw/playwright
+npm i msw @msw/playwright
 ```
 
 ```ts
