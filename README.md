@@ -30,10 +30,14 @@ npm i @msw/playwright
 ```ts
 // playwright.setup.ts
 import { test as testBase } from '@playwright/test'
-import { createWorkerFixture } from '@msw/playwright'
+import { createWorkerFixture, type WorkerFixture } from '@msw/playwright'
 import { handlers } from '../mocks/handlers.js'
 
-export const test = testBase.extend({
+interface Fixtures {
+  worker: WorkerFixture
+}
+
+export const test = testBase.extend<Fixtures>({
   // Create your worker fixture to access in tests.
   worker: createWorkerFixture({
     initialHandlers: handlers,

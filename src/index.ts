@@ -9,20 +9,20 @@ import {
 export function createWorkerFixture(
   initialHandlers: Array<RequestHandler> = [],
   /** @todo `onUnhandledRequest`? */
-): TestFixture<PlaywrightSetupApi, any> {
+): TestFixture<WorkerFixture, any> {
   return async ({ page }, use) => {
-    const api = new PlaywrightSetupApi({
+    const worker = new WorkerFixture({
       page,
       initialHandlers,
     })
 
-    await api.start()
-    await use(api)
-    await api.stop()
+    await worker.start()
+    await use(worker)
+    await worker.stop()
   }
 }
 
-export class PlaywrightSetupApi extends SetupApi<LifeCycleEventsMap> {
+export class WorkerFixture extends SetupApi<LifeCycleEventsMap> {
   #page: Page
 
   constructor(args: { page: Page; initialHandlers: Array<RequestHandler> }) {

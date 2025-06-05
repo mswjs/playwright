@@ -1,9 +1,9 @@
 import { test as testBase, expect } from '@playwright/test'
 import { http, HttpResponse } from 'msw'
-import { createWorkerFixture, type PlaywrightSetupApi } from '../src/index.js'
+import { createWorkerFixture, type WorkerFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: PlaywrightSetupApi
+  worker: WorkerFixture
 }
 
 const test = testBase.extend<Fixtures>({
