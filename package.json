@@ -4,9 +4,16 @@
   "version": "0.0.0",
   "description": "Mock Service Worker binding for Playwright",
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "release": "release publish"
   },
-  "keywords": [],
+  "keywords": [
+    "playwright",
+    "api",
+    "mock",
+    "msw",
+    "request"
+  ],
   "license": "MIT",
   "funding": "https://github.com/sponsors/mswjs",
   "homepage": "https://mswjs.io",
@@ -25,6 +32,7 @@
     "msw": "^2.9.0"
   },
   "devDependencies": {
+    "@ossjs/release": "^0.8.1",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.29",
     "msw": "^2.9.0",
