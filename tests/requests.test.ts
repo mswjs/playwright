@@ -1,9 +1,9 @@
 import { test as testBase, expect } from '@playwright/test'
 import { http } from 'msw'
-import { createWorkerFixture } from '../src/index.js'
+import { createWorkerFixture, type PlaywrightSetupApi } from '../src/index.js'
 
 interface Fixtures {
-  worker: any
+  worker: PlaywrightSetupApi
 }
 
 const test = testBase.extend<Fixtures>({
@@ -18,7 +18,6 @@ test('intercepts a GET request', async ({ worker, page }) => {
     }),
   )
 
-  await page.goto('/')
   await page.evaluate(async () => {
     fetch('http://localhost/resource', {
       headers: {
@@ -44,7 +43,6 @@ test('intercepts a POST request without any body', async ({ worker, page }) => {
     }),
   )
 
-  await page.goto('/')
   await page.evaluate(async () => {
     fetch('http://localhost/action', {
       method: 'POST',
@@ -66,7 +64,6 @@ test('intercepts a POST request with text body', async ({ worker, page }) => {
     }),
   )
 
-  await page.goto('/')
   await page.evaluate(async () => {
     fetch('http://localhost/action', {
       method: 'POST',
@@ -91,7 +88,6 @@ test('intercepts a POST request with array buffer body', async ({
     }),
   )
 
-  await page.goto('/')
   await page.evaluate(async () => {
     fetch('http://localhost/action', {
       method: 'POST',

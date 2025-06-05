@@ -22,7 +22,7 @@ export function createWorkerFixture(
   }
 }
 
-class PlaywrightSetupApi extends SetupApi<LifeCycleEventsMap> {
+export class PlaywrightSetupApi extends SetupApi<LifeCycleEventsMap> {
   #page: Page
 
   constructor(args: { page: Page; initialHandlers: Array<RequestHandler> }) {
@@ -49,7 +49,9 @@ class PlaywrightSetupApi extends SetupApi<LifeCycleEventsMap> {
         route.fulfill({
           status: response.status,
           headers: Object.fromEntries(response.headers),
-          body: Buffer.from(await response.arrayBuffer()),
+          body: response.body
+            ? Buffer.from(await response.arrayBuffer())
+            : undefined,
         })
         return
       }
