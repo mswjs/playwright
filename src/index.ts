@@ -6,14 +6,18 @@ import {
   getResponse,
 } from 'msw'
 
+export interface CreateWorkerFixtureArgs {
+  initialHandlers: Array<RequestHandler>
+}
+
 export function createWorkerFixture(
-  initialHandlers: Array<RequestHandler> = [],
+  args: CreateWorkerFixtureArgs,
   /** @todo `onUnhandledRequest`? */
 ): TestFixture<WorkerFixture, any> {
   return async ({ page }, use) => {
     const worker = new WorkerFixture({
       page,
-      initialHandlers,
+      initialHandlers: args.initialHandlers,
     })
 
     await worker.start()
@@ -26,7 +30,7 @@ export class WorkerFixture extends SetupApi<LifeCycleEventsMap> {
   #page: Page
 
   constructor(args: { page: Page; initialHandlers: Array<RequestHandler> }) {
-    super(...args.initialHandlers)
+    super(...(args.initialHandlers || []))
     this.#page = args.page
   }
 
