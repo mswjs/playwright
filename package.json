@@ -46,8 +46,11 @@
     "@ossjs/release": "^0.8.1",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.29",
-    "msw": "^2.9.0",
+    "msw": "https://pkg.pr.new/msw@df2b35b",
     "tsdown": "^0.12.7",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@mswjs/interceptors": "^0.39.1"
   }
 }
