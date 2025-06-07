@@ -11,6 +11,9 @@ importers:
       '@mswjs/interceptors':
         specifier: ^0.39.1
         version: 0.39.1
+      outvariant:
+        specifier: ^1.4.3
+        version: 1.4.3
     devDependencies:
       '@ossjs/release':
         specifier: ^0.8.1

@@ -1,3 +1,4 @@
+import { invariant } from 'outvariant'
 import type { Page, TestFixture, WebSocketRoute } from '@playwright/test'
 import {
   type LifeCycleEventsMap,
@@ -76,7 +77,7 @@ export class WorkerFixture extends SetupApi<LifeCycleEventsMap> {
     })
 
     // Handle WebSocket connections.
-    this.#page.routeWebSocket(/.+/, async (ws) => {
+    await this.#page.routeWebSocket(/.+/, async (ws) => {
       const allWebSocketHandlers = this.handlersController
         .currentHandlers()
         .filter((handler) => {
@@ -92,7 +93,7 @@ export class WorkerFixture extends SetupApi<LifeCycleEventsMap> {
       const server = new PlaywrightWebSocketServerConnection(ws)
 
       for (const handler of allWebSocketHandlers) {
-        handler.run({
+        await handler.run({
           client,
           server,
           info: { protocols: [] },
@@ -143,12 +144,6 @@ class PlaywrightWebSocketClientConnection
      * @note Playwright does not expose the actual WebSocket reference.
      */
     const target = {} as WebSocket
-
-    if (typeof options === 'object' && options?.once) {
-      console.warn(
-        '@msw/playwright: WebSocketRoute from Playwright does not support "once" option',
-      )
-    }
 
     switch (type) {
       case 'message': {
@@ -201,43 +196,39 @@ class PlaywrightWebSocketServerConnection
   }
 
   public send(data: WebSocketData): void {
-    if (!this.#server) {
-      //
-      return
-    }
+    invariant(
+      this.#server,
+      'Failed to send data to the actual WebSocket server: connection not established. Did you forget to call `connect()`?',
+    )
 
     this.#server.send(data as any)
   }
 
   public close(code?: number, reason?: string): void {
-    if (!this.#server) {
-      //
-      return
-    }
+    invariant(
+      this.#server,
+      'Failed to close connection to the actual WebSocket server: connection not established. Did you forget to call `connect()`?',
+    )
 
     this.#server.close({ code, reason })
   }
 
   public addEventListener<EventType extends keyof WebSocketServerEventMap>(
-    event: EventType,
+    type: EventType,
     listener: (
       this: WebSocket,
       event: WebSocketServerEventMap[EventType],
     ) => void,
     options?: AddEventListenerOptions | boolean,
   ): void {
-    if (!this.#server) {
-      return
-    }
-
-    if (typeof options === 'object' && options?.once) {
-      console.warn(
-        '@msw/playwright: WebSocketRoute from Playwright does not support "once" option',
-      )
-    }
+    invariant(
+      this.#server,
+      'Failed to add listener for event "%s" on the actual WebSocket server: connection not established. Did you forget to call `connect()`?',
+      type,
+    )
 
     const target = {} as WebSocket
-    switch (event) {
+    switch (type) {
       case 'message': {
         this.#server.onMessage((data) => {
           listener.call(target, new MessageEvent('message', { data }) as any)
@@ -258,7 +249,7 @@ class PlaywrightWebSocketServerConnection
   }
 
   public removeEventListener<EventType extends keyof WebSocketServerEventMap>(
-    event: EventType,
+    type: EventType,
     listener: (
       this: WebSocket,
       event: WebSocketServerEventMap[EventType],

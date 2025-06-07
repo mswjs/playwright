@@ -19,16 +19,20 @@ test('sends a mocked event to the client', async ({ worker, page }) => {
     }),
   )
 
-  const message = await page.evaluate(() => {
-    const ws = new WebSocket('ws://localhost/api')
+  await page.goto('')
 
-    return new Promise<string>((resolve, reject) => {
-      ws.onerror = () => reject(new Error('WebSocket connection failed'))
-      ws.onmessage = (event) => {
-        resolve(event.data)
-      }
+  const message = await page
+    .evaluate(() => {
+      const ws = new WebSocket('ws://localhost/api')
+
+      return new Promise<string>((resolve, reject) => {
+        ws.onerror = () => reject(new Error('WebSocket connection failed'))
+        ws.onmessage = (event) => {
+          resolve(event.data)
+        }
+      })
     })
-  })
+    .catch(() => void 0)
 
   expect(message).toBe('hello world')
 })
