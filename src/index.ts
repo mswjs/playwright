@@ -15,7 +15,7 @@ import {
 } from '@mswjs/interceptors/WebSocket'
 
 export interface CreateWorkerFixtureArgs {
-  initialHandlers: Array<RequestHandler>
+  initialHandlers: Array<RequestHandler | WebSocketHandler>
 }
 
 export function createWorkerFixture(
@@ -37,7 +37,10 @@ export function createWorkerFixture(
 export class WorkerFixture extends SetupApi<LifeCycleEventsMap> {
   #page: Page
 
-  constructor(args: { page: Page; initialHandlers: Array<RequestHandler> }) {
+  constructor(args: {
+    page: Page
+    initialHandlers: Array<RequestHandler | WebSocketHandler>
+  }) {
     super(...args.initialHandlers)
     this.#page = args.page
   }
