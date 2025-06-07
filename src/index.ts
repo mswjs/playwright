@@ -120,21 +120,35 @@ class PlaywrightWebSocketClientConnection
   }
 
   public send(data: WebSocketData): void {
+    if (data instanceof Blob) {
+      /**
+       * @note Playwright does not support sending Blob data.
+       * Read the blob as buffer, then send the buffer instead.
+       */
+      data.bytes().then((bytes) => {
+        this.ws.send(Buffer.from(bytes))
+      })
+      return
+    }
+
+    if (typeof data === 'string') {
+      this.ws.send(data)
+      return
+    }
+
     this.ws.send(
-      typeof data === 'string'
-        ? data
-        : /**
-           * @note Forcefully cast all data to Buffer because Playwright
-           * has trouble digesting ArrayBuffer and Blob directly.
-           */
-          Buffer.from(
-            /**
-             * @note Playwright type definitions are tailored to Node.js
-             * while MSW describes all data types that can be sent over
-             * the WebSocket protocol, like ArrayBuffer and Blob.
-             */
-            data as any,
-          ),
+      /**
+       * @note Forcefully cast all data to Buffer because Playwright
+       * has trouble digesting ArrayBuffer and Blob directly.
+       */
+      Buffer.from(
+        /**
+         * @note Playwright type definitions are tailored to Node.js
+         * while MSW describes all data types that can be sent over
+         * the WebSocket protocol, like ArrayBuffer and Blob.
+         */
+        data as any,
+      ),
     )
   }
 

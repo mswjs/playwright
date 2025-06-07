@@ -64,3 +64,28 @@ test('sends a buffer data to the client', async ({ worker, page }) => {
 
   expect(message).toBe('hello world')
 })
+
+test('sends a blob data to the client', async ({ worker, page }) => {
+  worker.use(
+    api.addEventListener('connection', ({ client }) => {
+      client.send(new Blob(['hello world']))
+    }),
+  )
+
+  await page.goto('')
+
+  const message = await page.evaluate(() => {
+    const ws = new WebSocket('ws://localhost/api')
+
+    return new Promise<string>((resolve, reject) => {
+      ws.onerror = () => reject(new Error('WebSocket connection failed'))
+      ws.onmessage = async (event) => {
+        if (event.data instanceof Blob) {
+          resolve(await event.data.text())
+        }
+      }
+    })
+  })
+
+  expect(message).toBe('hello world')
+})
