@@ -43,6 +43,7 @@
     "msw": "^2.10.1"
   },
   "devDependencies": {
+    "@epic-web/test-server": "^0.1.6",
     "@ossjs/release": "^0.8.1",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.29",

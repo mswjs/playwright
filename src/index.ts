@@ -4,8 +4,8 @@ import {
   type LifeCycleEventsMap,
   SetupApi,
   RequestHandler,
-  getResponse,
   WebSocketHandler,
+  getResponse,
 } from 'msw'
 import {
   type WebSocketClientEventMap,
