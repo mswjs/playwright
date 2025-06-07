@@ -15,8 +15,6 @@ const api = ws.link('ws://localhost/api')
 test('sends a mocked event to the client', async ({ worker, page }) => {
   worker.use(
     api.addEventListener('connection', ({ client }) => {
-      console.log('WS CONNECTION!')
-
       client.send('hello world')
     }),
   )

@@ -40,13 +40,13 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "msw": "^2.9.0"
+    "msw": "^2.10.1"
   },
   "devDependencies": {
     "@ossjs/release": "^0.8.1",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.29",
-    "msw": "https://pkg.pr.new/msw@df2b35b",
+    "msw": "^2.10.1",
     "tsdown": "^0.12.7",
     "typescript": "^5.8.3"
   },
