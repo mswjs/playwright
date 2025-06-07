@@ -182,9 +182,10 @@ test('connects to the actual server', async ({ worker, page }) => {
     pathname: '/ws'
   })
 
+  const serverMessage = Promise.withResolvers<string>()
   wss.on('connection', (ws) => {
     ws.addEventListener('message', (event) => {
-      console.log('server received:', event.data)
+      serverMessage.resolve(event.data?.toString())
     })
   })
 
@@ -209,4 +210,5 @@ test('connects to the actual server', async ({ worker, page }) => {
   }, wsUrl)
 
   expect(wasOpened).toBe(true)
+  await expect(serverMessage.promise).resolves.toBe('hello from the client')
 })

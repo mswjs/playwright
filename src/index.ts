@@ -11,6 +11,8 @@ import {
   type WebSocketClientEventMap,
   type WebSocketData,
   type WebSocketServerEventMap,
+  CancelableMessageEvent,
+  CancelableCloseEvent,
   WebSocketClientConnectionProtocol,
   WebSocketServerConnectionProtocol,
 } from '@mswjs/interceptors/WebSocket'
@@ -175,7 +177,7 @@ class PlaywrightWebSocketClientConnection
         this.ws.onMessage((data) => {
           listener.call(
             target,
-            new MessageEvent('message', {
+            new CancelableMessageEvent('message', {
               data,
             }) as any,
           )
@@ -185,20 +187,13 @@ class PlaywrightWebSocketClientConnection
 
       case 'close': {
         this.ws.onClose((code, reason) => {
-          /**
-           * @note This is run in Node.js, where CloseEvent doesn't exist.
-           */
-          const closeEvent = new Event('close')
-          Object.defineProperties(closeEvent, {
-            code: { value: code, writable: false, enumerable: true },
-            reason: { value: reason, writable: false, enumerable: true },
-            wasClean: {
-              value: code === 1000,
-              writable: false,
-              enumerable: true,
-            },
-          })
-          listener.call(target, closeEvent as any)
+          listener.call(
+            target,
+            new CancelableCloseEvent('close', {
+              code,
+              reason,
+            }) as any,
+          )
         })
         break
       }
@@ -288,7 +283,10 @@ class PlaywrightWebSocketServerConnection
     switch (type) {
       case 'message': {
         this.#server.onMessage((data) => {
-          listener.call(target, new MessageEvent('message', { data }) as any)
+          listener.call(
+            target,
+            new CancelableMessageEvent('message', { data }) as any,
+          )
         })
         break
       }
@@ -297,7 +295,7 @@ class PlaywrightWebSocketServerConnection
         this.#server.onClose((code, reason) => {
           listener.call(
             target,
-            new CloseEvent('close', { code, reason }) as any,
+            new CancelableCloseEvent('close', { code, reason }) as any,
           )
         })
         break
