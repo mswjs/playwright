@@ -120,12 +120,22 @@ class PlaywrightWebSocketClientConnection
   }
 
   public send(data: WebSocketData): void {
-    /**
-     * @note Playwright type definitions are tailored to Node.js
-     * while MSW describes all data types that can be sent over
-     * the WebSocket protocol.
-     */
-    this.ws.send(data as any)
+    this.ws.send(
+      typeof data === 'string'
+        ? data
+        : /**
+           * @note Forcefully cast all data to Buffer because Playwright
+           * has trouble digesting ArrayBuffer and Blob directly.
+           */
+          Buffer.from(
+            /**
+             * @note Playwright type definitions are tailored to Node.js
+             * while MSW describes all data types that can be sent over
+             * the WebSocket protocol, like ArrayBuffer and Blob.
+             */
+            data as any,
+          ),
+    )
   }
 
   public close(code?: number, reason?: string): void {
@@ -188,18 +198,41 @@ class PlaywrightWebSocketServerConnection
   implements WebSocketServerConnectionProtocol
 {
   #server?: WebSocketRoute
+  #bufferedEvents: Array<
+    Parameters<WebSocketServerConnectionProtocol['addEventListener']>
+  >
+  #bufferedData: Array<WebSocketData>
 
-  constructor(protected readonly ws: WebSocketRoute) {}
+  constructor(protected readonly ws: WebSocketRoute) {
+    this.#bufferedEvents = []
+    this.#bufferedData = []
+  }
 
   public connect(): void {
     this.#server = this.ws.connectToServer()
+
+    /**
+     * @note Playwright does not support event buffering.
+     * Manually add event listeners that might have been registered
+     * before `connect()` was called.
+     */
+    for (const [type, listener, options] of this.#bufferedEvents) {
+      this.addEventListener(type, listener, options)
+    }
+    this.#bufferedEvents.length = 0
+
+    // Same for the buffered data.
+    for (const data of this.#bufferedData) {
+      this.send(data)
+    }
+    this.#bufferedData.length = 0
   }
 
   public send(data: WebSocketData): void {
-    invariant(
-      this.#server,
-      'Failed to send data to the actual WebSocket server: connection not established. Did you forget to call `connect()`?',
-    )
+    if (this.#server == null) {
+      this.#bufferedData.push(data)
+      return
+    }
 
     this.#server.send(data as any)
   }
@@ -221,11 +254,10 @@ class PlaywrightWebSocketServerConnection
     ) => void,
     options?: AddEventListenerOptions | boolean,
   ): void {
-    invariant(
-      this.#server,
-      'Failed to add listener for event "%s" on the actual WebSocket server: connection not established. Did you forget to call `connect()`?',
-      type,
-    )
+    if (this.#server == null) {
+      this.#bufferedEvents.push([type, listener as any, options])
+      return
+    }
 
     const target = {} as WebSocket
     switch (type) {
