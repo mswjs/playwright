@@ -18,6 +18,7 @@ test('intercepts a GET request', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   await page.evaluate(async () => {
     fetch('http://localhost/resource', {
       headers: {
@@ -43,6 +44,7 @@ test('intercepts a POST request without any body', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   await page.evaluate(async () => {
     fetch('http://localhost/action', {
       method: 'POST',
@@ -64,6 +66,7 @@ test('intercepts a POST request with text body', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   await page.evaluate(async () => {
     fetch('http://localhost/action', {
       method: 'POST',
@@ -88,6 +91,7 @@ test('intercepts a POST request with array buffer body', async ({
     }),
   )
 
+  await page.goto('')
   await page.evaluate(async () => {
     fetch('http://localhost/action', {
       method: 'POST',

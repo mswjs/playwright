@@ -65,9 +65,3 @@ test('displays the user dashboard', async ({ worker, page }) => {
   await page.goto('/dashboard')
 })
 ```
-
-## Limitations
-
-### WebSocket support
-
-This library _does not support mocking WebSockets_ at the moment. That support requires a refactoring on MSW side to expose `handleWebSocketEvent()` and simplify its call signature (it really only needs the client url). Once that refactoring is done, we will use `page.routeWebSocket()` to provision the WebSocket support.

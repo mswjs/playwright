@@ -17,6 +17,7 @@ test('mocks a response without any body', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   const response = await page.evaluate(() => {
     return fetch('http://localhost/null').then((response) => {
       return response.text()
@@ -37,6 +38,7 @@ test('mocks a response with a text body', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   const response = await page.evaluate(() => {
     return fetch('http://localhost/text').then((response) => response.text())
   })
@@ -51,6 +53,7 @@ test('mocks a response with a json body', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   const response = await page.evaluate(() => {
     return fetch('http://localhost/json').then((response) => response.json())
   })
@@ -67,6 +70,7 @@ test('mocks a response with an ArrayBuffer body', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   const response = await page.evaluate(() => {
     return (
       fetch('http://localhost/arrayBuffer')
@@ -90,6 +94,7 @@ test('mocks a response with an FormData body', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   const response = await page.evaluate(() => {
     return fetch('http://localhost/formData')
       .then((response) => response.formData())
@@ -114,6 +119,7 @@ test('mocks a response with a stream', async ({ worker, page }) => {
     }),
   )
 
+  await page.goto('')
   const response = await page.evaluate(() => {
     return fetch('http://localhost/stream').then((response) => response.text())
   })
