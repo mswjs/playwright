@@ -153,7 +153,8 @@ class PlaywrightWebSocketClientConnection
   }
 
   public close(code?: number, reason?: string): void {
-    this.ws.close({ code, reason })
+    const resolvedCode = code ?? 1000
+    this.ws.close({ code: resolvedCode, reason })
   }
 
   public addEventListener<EventType extends keyof WebSocketClientEventMap>(
@@ -184,10 +185,20 @@ class PlaywrightWebSocketClientConnection
 
       case 'close': {
         this.ws.onClose((code, reason) => {
-          listener.call(
-            target,
-            new CloseEvent('close', { code, reason }) as any,
-          )
+          /**
+           * @note This is run in Node.js, where CloseEvent doesn't exist.
+           */
+          const closeEvent = new Event('close')
+          Object.defineProperties(closeEvent, {
+            code: { value: code, writable: false, enumerable: true },
+            reason: { value: reason, writable: false, enumerable: true },
+            wasClean: {
+              value: code === 1000,
+              writable: false,
+              enumerable: true,
+            },
+          })
+          listener.call(target, closeEvent as any)
         })
         break
       }

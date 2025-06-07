@@ -89,3 +89,84 @@ test('sends a blob data to the client', async ({ worker, page }) => {
 
   expect(message).toBe('hello world')
 })
+
+test('closes the client connection', async ({ worker, page }) => {
+  worker.use(
+    api.addEventListener('connection', ({ client }) => {
+      queueMicrotask(() => client.close())
+    }),
+  )
+
+  await page.goto('')
+
+  const wasClosed = await page.evaluate(() => {
+    const ws = new WebSocket('ws://localhost/api')
+
+    return new Promise<{ code: number; reason?: string }>((resolve, reject) => {
+      ws.onerror = () => reject(new Error('WebSocket connection failed'))
+      ws.onclose = (event) =>
+        resolve({ code: event.code, reason: event.reason })
+    })
+  })
+
+  expect(wasClosed).toEqual({
+    code: 1000,
+    reason: '',
+  })
+})
+
+test('closes the client connection with a custom reason', async ({
+  worker,
+  page,
+}) => {
+  worker.use(
+    api.addEventListener('connection', ({ client }) => {
+      queueMicrotask(() => client.close(1000, 'My reason'))
+    }),
+  )
+
+  await page.goto('')
+
+  const wasClosed = await page.evaluate(() => {
+    const ws = new WebSocket('ws://localhost/api')
+
+    return new Promise<{ code: number; reason?: string }>((resolve, reject) => {
+      ws.onerror = () => reject(new Error('WebSocket connection failed'))
+      ws.onclose = (event) =>
+        resolve({ code: event.code, reason: event.reason })
+    })
+  })
+
+  expect(wasClosed).toEqual({
+    code: 1000,
+    reason: 'My reason',
+  })
+})
+
+test('closes the client connection with a non-configurable code', async ({
+  worker,
+  page,
+}) => {
+  worker.use(
+    api.addEventListener('connection', ({ client }) => {
+      queueMicrotask(() => client.close(1003))
+    }),
+  )
+
+  await page.goto('')
+
+  const wasClosed = await page.evaluate(() => {
+    const ws = new WebSocket('ws://localhost/api')
+
+    return new Promise<{ code: number; reason?: string }>((resolve, reject) => {
+      ws.onerror = () => reject(new Error('WebSocket connection failed'))
+      ws.onclose = (event) =>
+        resolve({ code: event.code, reason: event.reason })
+    })
+  })
+
+  expect(wasClosed).toEqual({
+    code: 1003,
+    reason: '',
+  })
+})
