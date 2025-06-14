@@ -24,17 +24,20 @@ export interface CreateWorkerFixtureArgs {
 export function createWorkerFixture(
   args?: CreateWorkerFixtureArgs,
   /** @todo `onUnhandledRequest`? */
-): TestFixture<WorkerFixture, any> {
-  return async ({ page }, use) => {
-    const worker = new WorkerFixture({
-      page,
-      initialHandlers: args?.initialHandlers || [],
-    })
+): [TestFixture<WorkerFixture, any>, { auto: boolean }] {
+  return [
+    async ({ page }, use) => {
+      const worker = new WorkerFixture({
+        page,
+        initialHandlers: args?.initialHandlers || [],
+      })
 
-    await worker.start()
-    await use(worker)
-    await worker.stop()
-  }
+      await worker.start()
+      await use(worker)
+      await worker.stop()
+    },
+    { auto: true },
+  ]
 }
 
 export class WorkerFixture extends SetupApi<LifeCycleEventsMap> {
