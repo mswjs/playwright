@@ -13,7 +13,7 @@ await page.evaluate(() => {
   // functions from the `msw` package you want to use since
   // you cannot reference them in `page.evaluate` directly.
   const { worker, http, graphql } = window.msw
-  worker.use(...)
+  worker.use(...overrides)
 })
 ```
 
@@ -30,16 +30,16 @@ npm i msw @msw/playwright
 ```ts
 // playwright.setup.ts
 import { test as testBase } from '@playwright/test'
-import { createWorkerFixture, type WorkerFixture } from '@msw/playwright'
+import { createNetworkFixture, type NetworkFixture } from '@msw/playwright'
 import { handlers } from '../mocks/handlers.js'
 
 interface Fixtures {
-  worker: WorkerFixture
+  network: NetworkFixture
 }
 
 export const test = testBase.extend<Fixtures>({
-  // Create your worker fixture to access in tests.
-  worker: createWorkerFixture({
+  // Create a fixture that will control the network in your tests.
+  network: createNetworkFixture({
     initialHandlers: handlers,
   }),
 })
@@ -49,10 +49,10 @@ export const test = testBase.extend<Fixtures>({
 import { http, HttpResponse } from 'msw'
 import { test } from './playwright.setup.js'
 
-test('displays the user dashboard', async ({ worker, page }) => {
-  // Access and use the worker as you normally would!
+test('displays the user dashboard', async ({ network, page }) => {
+  // Access the network fixture and use it as the `setupWorker()` API.
   // No more disrupted context between processes.
-  worker.use(
+  network.use(
     http.get('/user', () => {
       return HttpResponse.json({
         id: 'abc-123',

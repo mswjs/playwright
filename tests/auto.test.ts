@@ -1,13 +1,13 @@
 import { test as testBase, expect } from '@playwright/test'
 import { http } from 'msw'
-import { createWorkerFixture, type WorkerFixture } from '../src/index.js'
+import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: WorkerFixture
+  worker: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  worker: createWorkerFixture({
+  worker: createNetworkFixture({
     initialHandlers: [
       http.get('*/resource', () => {
         return new Response('hello world')
