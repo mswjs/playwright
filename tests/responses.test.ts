@@ -126,3 +126,23 @@ test('mocks a response with a stream', async ({ network, page }) => {
 
   expect(response).toBe('hello world')
 })
+
+test('mocks a network error', async ({ network, page }) => {
+  network.use(
+    http.get('*/network-error', () => {
+      return HttpResponse.error()
+    }),
+  )
+
+  await page.goto('')
+  const errorMessage = await page.evaluate<string>(() => {
+    return fetch('http://localhost/network-error').then(
+      () => {
+        throw new Error('Must not return a successful response')
+      },
+      (error) => error,
+    )
+  })
+
+  expect(errorMessage).toEqual(new TypeError('Failed to fetch'))
+})
