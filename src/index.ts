@@ -96,6 +96,11 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
       )
 
       if (response) {
+        if (response.status === 0) {
+          route.abort()
+          return
+        }
+
         route.fulfill({
           status: response.status,
           headers: Object.fromEntries(response.headers),
