@@ -65,3 +65,17 @@ test('displays the user dashboard', async ({ network, page }) => {
   await page.goto('/dashboard')
 })
 ```
+
+## Comparison
+
+### `playwright-msw`
+
+[`playwright-msw`](https://github.com/valendres/playwright-msw) is a community package that, just like `@msw/playwright`, aims to provide a better experience when mocking APIs in your Playwright tests.
+
+> While `playwright-msw` is a fantastic tool and a huge inspiration for this package to exist, I believe it approaches the idea at a rather complex angle. That introduces a layer of abstraction that is subjected to the "left behind" problem as it needs to map to any MSW changes explicitly.
+
+|                | `playwright-msw`                                                                      | `@msw/playwright`                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Initialization | `createWorkerFixture()` is used as a _part_ of your custom fixture.                   | `createNetworkFixture()` creates _the entire_ fixture for you, pre-configured.                     |
+| Implementation | Uses a custom router to match handlers and a custom wrapper around `SetupWorker` API. | Uses MSW directly. Uses `page.route()` as the source of the network to route through the handlers. |
+| Feature set    | Supports `http` and `graphql` namespaces.                                             | Supports all namespaces (`http`, `graphql`, `ws`, any other APIs exposed by MSW in the future).    |
