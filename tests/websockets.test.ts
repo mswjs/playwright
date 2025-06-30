@@ -5,17 +5,17 @@ import { ws } from 'msw'
 import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: NetworkFixture
+  network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  worker: createNetworkFixture(),
+  network: createNetworkFixture(),
 })
 
 const api = ws.link('ws://localhost/api')
 
-test('sends a text data to the client', async ({ worker, page }) => {
-  worker.use(
+test('sends a text data to the client', async ({ network, page }) => {
+  network.use(
     api.addEventListener('connection', ({ client }) => {
       client.send('hello world')
     }),
@@ -39,8 +39,8 @@ test('sends a text data to the client', async ({ worker, page }) => {
   expect(message).toBe('hello world')
 })
 
-test('sends a buffer data to the client', async ({ worker, page }) => {
-  worker.use(
+test('sends a buffer data to the client', async ({ network, page }) => {
+  network.use(
     api.addEventListener('connection', ({ client }) => {
       client.send(new TextEncoder().encode('hello world'))
     }),
@@ -67,8 +67,8 @@ test('sends a buffer data to the client', async ({ worker, page }) => {
   expect(message).toBe('hello world')
 })
 
-test('sends a blob data to the client', async ({ worker, page }) => {
-  worker.use(
+test('sends a blob data to the client', async ({ network, page }) => {
+  network.use(
     api.addEventListener('connection', ({ client }) => {
       client.send(new Blob(['hello world']))
     }),
@@ -92,8 +92,8 @@ test('sends a blob data to the client', async ({ worker, page }) => {
   expect(message).toBe('hello world')
 })
 
-test('closes the client connection', async ({ worker, page }) => {
-  worker.use(
+test('closes the client connection', async ({ network, page }) => {
+  network.use(
     api.addEventListener('connection', ({ client }) => {
       queueMicrotask(() => client.close())
     }),
@@ -118,10 +118,10 @@ test('closes the client connection', async ({ worker, page }) => {
 })
 
 test('closes the client connection with a custom reason', async ({
-  worker,
+  network,
   page,
 }) => {
-  worker.use(
+  network.use(
     api.addEventListener('connection', ({ client }) => {
       queueMicrotask(() => client.close(1000, 'My reason'))
     }),
@@ -146,10 +146,10 @@ test('closes the client connection with a custom reason', async ({
 })
 
 test('closes the client connection with a non-configurable code', async ({
-  worker,
+  network,
   page,
 }) => {
-  worker.use(
+  network.use(
     api.addEventListener('connection', ({ client }) => {
       queueMicrotask(() => client.close(1003))
     }),
@@ -173,7 +173,7 @@ test('closes the client connection with a non-configurable code', async ({
   })
 })
 
-test('connects to the actual server', async ({ worker, page }) => {
+test('connects to the actual server', async ({ network, page }) => {
   await using httpServer = await createTestHttpServer({
     protocols: ['http']
   })
@@ -191,7 +191,7 @@ test('connects to the actual server', async ({ worker, page }) => {
 
   const wsUrl = wss.ws.url().href
   const link = ws.link(wsUrl)
-  worker.use(
+  network.use(
     link.addEventListener('connection', ({ server }) => {
       server.connect()
       server.send('hello from the client')

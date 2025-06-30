@@ -3,23 +3,26 @@ import { http } from 'msw'
 import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: NetworkFixture
+  network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  worker: createNetworkFixture(),
+  network: createNetworkFixture(),
 })
 
-test.beforeEach(({ worker }) => {
-  worker.use(
+test.beforeEach(({ network }) => {
+  network.use(
     http.get('*', () => {
       return new Response('fallback')
     }),
   )
 })
 
-test('responds with the override mocked response', async ({ worker, page }) => {
-  worker.use(
+test('responds with the override mocked response', async ({
+  network,
+  page,
+}) => {
+  network.use(
     http.get('*/resource', () => {
       return new Response('hello world')
     }),

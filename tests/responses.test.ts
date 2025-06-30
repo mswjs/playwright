@@ -3,15 +3,15 @@ import { http, HttpResponse } from 'msw'
 import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: NetworkFixture
+  network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  worker: createNetworkFixture(),
+  network: createNetworkFixture(),
 })
 
-test('mocks a response without any body', async ({ worker, page }) => {
-  worker.use(
+test('mocks a response without any body', async ({ network, page }) => {
+  network.use(
     http.get('*/null', () => {
       return new HttpResponse(null)
     }),
@@ -31,8 +31,8 @@ test('mocks a response without any body', async ({ worker, page }) => {
   expect(response).toBe('')
 })
 
-test('mocks a response with a text body', async ({ worker, page }) => {
-  worker.use(
+test('mocks a response with a text body', async ({ network, page }) => {
+  network.use(
     http.get('*/text', () => {
       return HttpResponse.text('Hello world!')
     }),
@@ -46,8 +46,8 @@ test('mocks a response with a text body', async ({ worker, page }) => {
   expect(response).toBe('Hello world!')
 })
 
-test('mocks a response with a json body', async ({ worker, page }) => {
-  worker.use(
+test('mocks a response with a json body', async ({ network, page }) => {
+  network.use(
     http.get('*/json', () => {
       return HttpResponse.json({ hello: 'world' })
     }),
@@ -61,8 +61,8 @@ test('mocks a response with a json body', async ({ worker, page }) => {
   expect(response).toEqual({ hello: 'world' })
 })
 
-test('mocks a response with an ArrayBuffer body', async ({ worker, page }) => {
-  worker.use(
+test('mocks a response with an ArrayBuffer body', async ({ network, page }) => {
+  network.use(
     http.get('*/arrayBuffer', () => {
       return HttpResponse.arrayBuffer(
         new TextEncoder().encode('hello world').buffer,
@@ -85,8 +85,8 @@ test('mocks a response with an ArrayBuffer body', async ({ worker, page }) => {
   expect(response).toBe('hello world')
 })
 
-test('mocks a response with an FormData body', async ({ worker, page }) => {
-  worker.use(
+test('mocks a response with an FormData body', async ({ network, page }) => {
+  network.use(
     http.get('*/formData', () => {
       const data = new FormData()
       data.set('hello', 'world')
@@ -104,8 +104,8 @@ test('mocks a response with an FormData body', async ({ worker, page }) => {
   expect(response).toEqual([['hello', 'world']])
 })
 
-test('mocks a response with a stream', async ({ worker, page }) => {
-  worker.use(
+test('mocks a response with a stream', async ({ network, page }) => {
+  network.use(
     http.get('*/stream', () => {
       const stream = new ReadableStream({
         start(controller) {

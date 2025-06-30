@@ -3,11 +3,11 @@ import { http } from 'msw'
 import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: NetworkFixture
+  network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  worker: createNetworkFixture({
+  network: createNetworkFixture({
     initialHandlers: [
       http.get('*/resource', () => {
         return new Response('hello world')
@@ -16,7 +16,7 @@ const test = testBase.extend<Fixtures>({
   }),
 })
 
-test('automatically applies the worker fixture', async ({ page }) => {
+test('automatically applies the network fixture', async ({ page }) => {
   await page.goto('')
   const data = await page.evaluate(() => {
     return fetch('http://localhost/resource').then((response) => {

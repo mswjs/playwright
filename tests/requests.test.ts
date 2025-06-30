@@ -3,16 +3,16 @@ import { http } from 'msw'
 import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: NetworkFixture
+  network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  worker: createNetworkFixture(),
+  network: createNetworkFixture(),
 })
 
-test('intercepts a GET request', async ({ worker, page }) => {
+test('intercepts a GET request', async ({ network, page }) => {
   const requestPromise = Promise.withResolvers<Request>()
-  worker.use(
+  network.use(
     http.get('*/resource', ({ request }) => {
       requestPromise.resolve(request)
     }),
@@ -36,9 +36,12 @@ test('intercepts a GET request', async ({ worker, page }) => {
   ])
 })
 
-test('intercepts a POST request without any body', async ({ worker, page }) => {
+test('intercepts a POST request without any body', async ({
+  network,
+  page,
+}) => {
   const requestPromise = Promise.withResolvers<Request>()
-  worker.use(
+  network.use(
     http.post('*/action', ({ request }) => {
       requestPromise.resolve(request)
     }),
@@ -58,9 +61,9 @@ test('intercepts a POST request without any body', async ({ worker, page }) => {
   expect(request.body).toBeNull()
 })
 
-test('intercepts a POST request with text body', async ({ worker, page }) => {
+test('intercepts a POST request with text body', async ({ network, page }) => {
   const requestPromise = Promise.withResolvers<Request>()
-  worker.use(
+  network.use(
     http.post('*/action', ({ request }) => {
       requestPromise.resolve(request)
     }),
@@ -81,11 +84,11 @@ test('intercepts a POST request with text body', async ({ worker, page }) => {
 })
 
 test('intercepts a POST request with array buffer body', async ({
-  worker,
+  network,
   page,
 }) => {
   const requestPromise = Promise.withResolvers<Request>()
-  worker.use(
+  network.use(
     http.post('*/action', ({ request }) => {
       requestPromise.resolve(request)
     }),
