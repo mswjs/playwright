@@ -17,17 +17,36 @@ import {
   WebSocketServerConnectionProtocol,
 } from '@mswjs/interceptors/WebSocket'
 
-export interface CreateWorkerFixtureArgs {
+export interface CreateNetworkFixtureArgs {
   initialHandlers: Array<RequestHandler | WebSocketHandler>
 }
 
-export function createWorkerFixture(
-  args?: CreateWorkerFixtureArgs,
+/**
+ * Creates a fixture that controls the network in your tests.
+ *
+ * @note The returned fixture already has the `auto` option set to `true`.
+ *
+ * **Usage**
+ * ```ts
+ * import { test as testBase } from '@playwright/test'
+ * import { createNetworkFixture, type WorkerFixture } from '@msw/playwright'
+ *
+ * interface Fixtures {
+ *  network: WorkerFixture
+ * }
+ *
+ * export const test = testBase.extend<Fixtures>({
+ *   network: createNetworkFixture()
+ * })
+ * ```
+ */
+export function createNetworkFixture(
+  args?: CreateNetworkFixtureArgs,
   /** @todo `onUnhandledRequest`? */
-): [TestFixture<WorkerFixture, any>, { auto: boolean }] {
+): [TestFixture<NetworkFixture, any>, { auto: boolean }] {
   return [
     async ({ page }, use) => {
-      const worker = new WorkerFixture({
+      const worker = new NetworkFixture({
         page,
         initialHandlers: args?.initialHandlers || [],
       })
@@ -40,7 +59,7 @@ export function createWorkerFixture(
   ]
 }
 
-export class WorkerFixture extends SetupApi<LifeCycleEventsMap> {
+export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   #page: Page
 
   constructor(args: {

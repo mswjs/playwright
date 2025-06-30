@@ -2,14 +2,14 @@ import { test as testBase, expect } from '@playwright/test'
 import { createTestHttpServer } from '@epic-web/test-server/http'
 import { createWebSocketMiddleware } from '@epic-web/test-server/ws'
 import { ws } from 'msw'
-import { createWorkerFixture, type WorkerFixture } from '../src/index.js'
+import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: WorkerFixture
+  worker: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  worker: createWorkerFixture(),
+  worker: createNetworkFixture(),
 })
 
 const api = ws.link('ws://localhost/api')

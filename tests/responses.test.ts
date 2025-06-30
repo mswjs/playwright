@@ -1,13 +1,13 @@
 import { test as testBase, expect } from '@playwright/test'
 import { http, HttpResponse } from 'msw'
-import { createWorkerFixture, type WorkerFixture } from '../src/index.js'
+import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
-  worker: WorkerFixture
+  worker: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  worker: createWorkerFixture(),
+  worker: createNetworkFixture(),
 })
 
 test('mocks a response without any body', async ({ worker, page }) => {
