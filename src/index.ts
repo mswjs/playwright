@@ -54,7 +54,7 @@ export function createNetworkFixture(
   { auto: boolean },
 ] {
   return [
-    async ({ context, page }, use) => {
+    async ({ page }, use) => {
       const worker = new NetworkFixture({
         page,
         initialHandlers: args?.initialHandlers || [],
