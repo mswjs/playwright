@@ -1,5 +1,11 @@
 import { invariant } from 'outvariant'
-import type { Page, TestFixture, WebSocketRoute } from '@playwright/test'
+import type {
+  Page,
+  PlaywrightTestArgs,
+  PlaywrightWorkerArgs,
+  TestFixture,
+  WebSocketRoute,
+} from '@playwright/test'
 import {
   type LifeCycleEventsMap,
   SetupApi,
@@ -43,9 +49,12 @@ export interface CreateNetworkFixtureArgs {
 export function createNetworkFixture(
   args?: CreateNetworkFixtureArgs,
   /** @todo `onUnhandledRequest`? */
-): [TestFixture<NetworkFixture, any>, { auto: boolean }] {
+): [
+  TestFixture<NetworkFixture, PlaywrightTestArgs & PlaywrightWorkerArgs>,
+  { auto: boolean },
+] {
   return [
-    async ({ page }, use) => {
+    async ({ context, page }, use) => {
       const worker = new NetworkFixture({
         page,
         initialHandlers: args?.initialHandlers || [],
