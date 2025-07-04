@@ -93,6 +93,9 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           return handler instanceof RequestHandler
         }),
         fetchRequest,
+        {
+          baseUrl: this.getPageUrl(),
+        },
       )
 
       if (response) {
@@ -131,11 +134,16 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
       const server = new PlaywrightWebSocketServerConnection(ws)
 
       for (const handler of allWebSocketHandlers) {
-        await handler.run({
-          client,
-          server,
-          info: { protocols: [] },
-        })
+        await handler.run(
+          {
+            client,
+            server,
+            info: { protocols: [] },
+          },
+          {
+            baseUrl: this.getPageUrl(),
+          },
+        )
       }
     })
   }
@@ -143,6 +151,11 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   public async stop() {
     super.dispose()
     await this.#page.unroute(/.+/)
+  }
+
+  private getPageUrl(): string | undefined {
+    const url = this.#page.url()
+    return url !== 'about:blank' ? url : undefined
   }
 }
 

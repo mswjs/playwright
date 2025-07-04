@@ -3,6 +3,7 @@ __*
 node_modules
 /lib
 /build
+/dist
 tmp
 *-error.log
 /package-lock.json
