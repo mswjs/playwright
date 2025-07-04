@@ -8,6 +8,9 @@
   "scripts": {
     "dev": "tsdown --watch",
     "test": "playwright test",
+    "app:dev": "vite dev",
+    "app:build": "vite build",
+    "app:start": "vite",
     "build": "tsdown",
     "release": "release publish"
   },
@@ -40,16 +43,17 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "msw": "^2.10.1"
+    "msw": "^2.10.3"
   },
   "devDependencies": {
     "@epic-web/test-server": "^0.1.6",
     "@ossjs/release": "^0.8.1",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.29",
-    "msw": "^2.10.1",
+    "msw": "^2.10.3",
     "tsdown": "^0.12.7",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vite": "^7.0.2"
   },
   "dependencies": {
     "@mswjs/interceptors": "^0.39.2",

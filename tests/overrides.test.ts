@@ -23,14 +23,15 @@ test('responds with the override mocked response', async ({
   page,
 }) => {
   network.use(
-    http.get('*/resource', () => {
+    http.get('/resource', () => {
       return new Response('hello world')
     }),
   )
 
-  await page.goto('')
+  await page.goto('/')
+
   const data = await page.evaluate(() => {
-    return fetch('http://localhost/resource').then((response) => {
+    return fetch('/resource').then((response) => {
       return response.text()
     })
   })
@@ -39,9 +40,10 @@ test('responds with the override mocked response', async ({
 })
 
 test('responds with a fallback response', async ({ page }) => {
-  await page.goto('')
+  await page.goto('/')
+
   const data = await page.evaluate(() => {
-    return fetch('http://localhost/intentionally-unknown').then((response) => {
+    return fetch('/intentionally-unknown').then((response) => {
       return response.text()
     })
   })

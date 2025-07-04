@@ -9,7 +9,7 @@ interface Fixtures {
 const test = testBase.extend<Fixtures>({
   network: createNetworkFixture({
     initialHandlers: [
-      http.get('*/resource', () => {
+      http.get('/resource', () => {
         return new Response('hello world')
       }),
     ],
@@ -17,9 +17,10 @@ const test = testBase.extend<Fixtures>({
 })
 
 test('automatically applies the network fixture', async ({ page }) => {
-  await page.goto('')
+  await page.goto('/')
+
   const data = await page.evaluate(() => {
-    return fetch('http://localhost/resource').then((response) => {
+    return fetch('/resource').then((response) => {
       return response.text()
     })
   })

@@ -9,7 +9,7 @@ export default defineConfig({
     },
   ],
   use: {
-    baseURL: new URL('./index.html', import.meta.url).href,
+    baseURL: 'http://localhost:5173',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     launchOptions: {
@@ -19,4 +19,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   fullyParallel: true,
   reporter: 'list',
+  webServer: {
+    command: 'npm run app:build && npm run app:start',
+    url: 'http://localhost:5173',
+    reuseExistingServer: !process.env.CI,
+    stderr: 'pipe',
+  },
 })
