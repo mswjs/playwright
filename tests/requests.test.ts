@@ -1,5 +1,5 @@
 import { test as testBase, expect } from '@playwright/test'
-import { http } from 'msw'
+import { http, HttpResponse } from 'msw'
 import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
@@ -107,3 +107,41 @@ test('intercepts a POST request with array buffer body', async ({
   expect(request.url).toBe('http://localhost:5173/action')
   await expect(request.text()).resolves.toBe('hello world')
 })
+
+test('intercepts an asset request when interceptCommonAssetRequests is false', async ({ network, page }) => {
+    network.use(
+      http.get('/index.html', () => {
+        return HttpResponse.text('NOT VALID HTML')
+      }),
+    )
+
+    await page.goto('/')
+    const htmlContent = await page.evaluate(async () => {
+      const res = await fetch('/index.html')
+      return res.text()
+    })
+
+    expect(htmlContent).toContain('NOT VALID HTML')
+  })
+
+  const testIgnoreAssets = testBase.extend<Fixtures>({
+    network: createNetworkFixture({ ignoreCommonAssetRequests: true }),
+  })
+
+  testIgnoreAssets('passes through an asset request when interceptCommonAssetRequests is true', async ({ network, page }) => {
+    network.use(
+      http.get('/index.html', () => {
+        return HttpResponse.text('NOT VALID HTML')
+      }),
+    )
+
+    await page.goto('/')
+    const htmlContent = await page.evaluate(async () => {
+      const res = await fetch('/index.html')
+      return res.text()
+    })
+
+    expect(htmlContent).toContain('DOCTYPE html')
+  })
+
+  

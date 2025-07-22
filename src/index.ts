@@ -12,6 +12,7 @@ import {
   RequestHandler,
   WebSocketHandler,
   getResponse,
+  isCommonAssetRequest,
 } from 'msw'
 import {
   type WebSocketClientEventMap,
@@ -24,7 +25,8 @@ import {
 } from '@mswjs/interceptors/WebSocket'
 
 export interface CreateNetworkFixtureArgs {
-  initialHandlers: Array<RequestHandler | WebSocketHandler>
+  ignoreCommonAssetRequests?: boolean
+  initialHandlers?: Array<RequestHandler | WebSocketHandler>
 }
 
 /**
@@ -57,6 +59,7 @@ export function createNetworkFixture(
     async ({ page }, use) => {
       const worker = new NetworkFixture({
         page,
+        ignoreCommonAssetRequests: args?.ignoreCommonAssetRequests ?? false,
         initialHandlers: args?.initialHandlers || [],
       })
 
@@ -70,13 +73,16 @@ export function createNetworkFixture(
 
 export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   #page: Page
+  #ignoreCommonAssetRequests: boolean
 
   constructor(args: {
     page: Page
+    ignoreCommonAssetRequests: boolean
     initialHandlers: Array<RequestHandler | WebSocketHandler>
   }) {
     super(...args.initialHandlers)
     this.#page = args.page
+    this.#ignoreCommonAssetRequests = args.ignoreCommonAssetRequests
   }
 
   public async start() {
@@ -87,6 +93,11 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
         headers: new Headers(await request.allHeaders()),
         body: request.postDataBuffer(),
       })
+
+      if (this.#ignoreCommonAssetRequests && isCommonAssetRequest(fetchRequest)) {
+        route.continue()
+        return
+      }
 
       const response = await getResponse(
         this.handlersController.currentHandlers().filter((handler) => {
