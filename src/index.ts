@@ -50,9 +50,9 @@ export function createNetworkFixture(
   args?: CreateNetworkFixtureArgs,
   /** @todo `onUnhandledRequest`? */
 ): [
-  TestFixture<NetworkFixture, PlaywrightTestArgs & PlaywrightWorkerArgs>,
-  { auto: boolean },
-] {
+    TestFixture<NetworkFixture, PlaywrightTestArgs & PlaywrightWorkerArgs>,
+    { auto: boolean },
+  ] {
   return [
     async ({ page }, use) => {
       const worker = new NetworkFixture({
@@ -70,6 +70,7 @@ export function createNetworkFixture(
 
 export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   #page: Page
+  #stopped: boolean;
 
   constructor(args: {
     page: Page
@@ -77,9 +78,11 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   }) {
     super(...args.initialHandlers)
     this.#page = args.page
+    this.#stopped = true
   }
 
   public async start() {
+    this.#stopped = false
     // Handle HTTP requests.
     await this.#page.route(/.+/, async (route, request) => {
       const fetchRequest = new Request(request.url(), {
@@ -97,6 +100,9 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           baseUrl: this.getPageUrl(),
         },
       )
+
+      if (this.#stopped)
+        return;
 
       if (response) {
         if (response.status === 0) {
@@ -149,6 +155,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   }
 
   public async stop() {
+    this.#stopped = true
     super.dispose()
     await this.#page.unroute(/.+/)
   }
@@ -160,8 +167,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
 }
 
 class PlaywrightWebSocketClientConnection
-  implements WebSocketClientConnectionProtocol
-{
+  implements WebSocketClientConnectionProtocol {
   public id: string
   public url: URL
 
@@ -264,8 +270,7 @@ class PlaywrightWebSocketClientConnection
 }
 
 class PlaywrightWebSocketServerConnection
-  implements WebSocketServerConnectionProtocol
-{
+  implements WebSocketServerConnectionProtocol {
   #server?: WebSocketRoute
   #bufferedEvents: Array<
     Parameters<WebSocketServerConnectionProtocol['addEventListener']>
