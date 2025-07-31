@@ -59,7 +59,7 @@ export function createNetworkFixture(
     async ({ page }, use) => {
       const worker = new NetworkFixture({
         page,
-        ignoreCommonAssetRequests: args?.ignoreCommonAssetRequests ?? false,
+        ignoreCommonAssetRequests: args?.ignoreCommonAssetRequests ?? true,
         initialHandlers: args?.initialHandlers || [],
       })
 

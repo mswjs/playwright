@@ -108,27 +108,7 @@ test('intercepts a POST request with array buffer body', async ({
   await expect(request.text()).resolves.toBe('hello world')
 })
 
-test('intercepts an asset request when interceptCommonAssetRequests is false', async ({ network, page }) => {
-    network.use(
-      http.get('/index.html', () => {
-        return HttpResponse.text('NOT VALID HTML')
-      }),
-    )
-
-    await page.goto('/')
-    const htmlContent = await page.evaluate(async () => {
-      const res = await fetch('/index.html')
-      return res.text()
-    })
-
-    expect(htmlContent).toContain('NOT VALID HTML')
-  })
-
-  const testIgnoreAssets = testBase.extend<Fixtures>({
-    network: createNetworkFixture({ ignoreCommonAssetRequests: true }),
-  })
-
-  testIgnoreAssets('passes through an asset request when interceptCommonAssetRequests is true', async ({ network, page }) => {
+test('intercepts an asset request when interceptCommonAssetRequests is true', async ({ network, page }) => {
     network.use(
       http.get('/index.html', () => {
         return HttpResponse.text('NOT VALID HTML')
@@ -142,6 +122,26 @@ test('intercepts an asset request when interceptCommonAssetRequests is false', a
     })
 
     expect(htmlContent).toContain('DOCTYPE html')
+  })
+  
+  const testMockAssets = testBase.extend<Fixtures>({
+    network: createNetworkFixture({ ignoreCommonAssetRequests: false }),
+  })
+  
+  testMockAssets('passes through an asset request when interceptCommonAssetRequests is false', async ({ network, page }) => {
+    network.use(
+      http.get('/index.html', () => {
+        return HttpResponse.text('NOT VALID HTML')
+      }),
+    )
+    
+    await page.goto('/')
+    const htmlContent = await page.evaluate(async () => {
+      const res = await fetch('/index.html')
+      return res.text()
+    })
+    
+    expect(htmlContent).toContain('NOT VALID HTML')
   })
 
   
