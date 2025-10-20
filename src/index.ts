@@ -12,6 +12,7 @@ import {
   RequestHandler,
   WebSocketHandler,
   getResponse,
+  type UnhandledRequestStrategy,
 } from 'msw'
 import {
   type WebSocketClientEventMap,
@@ -23,8 +24,6 @@ import {
   WebSocketServerConnectionProtocol,
 } from '@mswjs/interceptors/WebSocket'
 
-/** @todo `Import from msw/core`? */
-type UnhandledRequestStrategy = (request: Request) => void;
 export interface CreateNetworkFixtureArgs {
   initialHandlers: Array<RequestHandler | WebSocketHandler>
   onUnhandledRequest?: UnhandledRequestStrategy
@@ -51,8 +50,6 @@ export interface CreateNetworkFixtureArgs {
  */
 export function createNetworkFixture(
   args?: CreateNetworkFixtureArgs,
-  onUnhandledRequest?: UnhandledRequestStrategy,
-  /** @todo `startOptions`? */
 ): [
   TestFixture<NetworkFixture, PlaywrightTestArgs & PlaywrightWorkerArgs>,
   { auto: boolean },
@@ -62,9 +59,10 @@ export function createNetworkFixture(
       const worker = new NetworkFixture({
         page,
         initialHandlers: args?.initialHandlers || [],
+        onUnhandledRequest: args?.onUnhandledRequest || 'warn',
       })
 
-      await worker.start({onUnhandledRequest: onUnhandledRequest})
+      await worker.start({onUnhandledRequest: args?.onUnhandledRequest})
       await use(worker)
       await worker.stop()
     },
@@ -78,6 +76,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   constructor(args: {
     page: Page
     initialHandlers: Array<RequestHandler | WebSocketHandler>
+    onUnhandledRequest?: UnhandledRequestStrategy
   }) {
     super(...args.initialHandlers)
     this.#page = args.page
@@ -117,9 +116,8 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
         })
         return
       } else {
-        if (onUnhandledRequest) {
-          onUnhandledRequest(fetchRequest)
-          return
+        if (typeof onUnhandledRequest === 'function') {
+          await onUnhandledRequest(fetchRequest, { warning: console.warn, error: console.error })
         }
       }
 
