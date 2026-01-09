@@ -29,8 +29,7 @@
   "funding": "https://github.com/sponsors/mswjs",
   "homepage": "https://mswjs.io",
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mswjs/playwright.git"
+    "url": "https://github.com/mswjs/playwright"
   },
   "author": {
     "name": "Artem Zakharchenko",
