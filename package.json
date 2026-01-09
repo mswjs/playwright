@@ -49,13 +49,13 @@
     "@ossjs/release": "^0.10.1",
     "@playwright/test": "^1.57.0",
     "@types/node": "^22.15.29",
-    "msw": "^2.10.3",
+    "msw": "^2.12.7",
     "tsdown": "^0.12.7",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "vite": "^7.3.1"
   },
   "dependencies": {
-    "@mswjs/interceptors": "^0.39.2",
+    "@mswjs/interceptors": "^0.40.0",
     "outvariant": "^1.4.3"
   }
 }
