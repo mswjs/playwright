@@ -27,7 +27,7 @@ import {
 } from '@mswjs/interceptors/WebSocket'
 
 export interface CreateNetworkFixtureArgs {
-  initialHandlers: Array<RequestHandler | WebSocketHandler>
+  initialHandlers?: Array<RequestHandler | WebSocketHandler>
   onUnhandledRequest?: UnhandledRequestStrategy
 }
 
@@ -108,6 +108,10 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
             return handler instanceof RequestHandler
           })
 
+        /**
+         * @note Use `handleRequest` instead of `getResponse` so we can pass
+         * the `onUnhandledRequest` option as-is and benefit from MSW's default behaviors.
+         */
         const response = await handleRequest(
           fetchRequest,
           crypto.randomUUID(),
