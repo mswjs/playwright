@@ -10,10 +10,11 @@ import type {
 } from '@playwright/test'
 import {
   type LifeCycleEventsMap,
+  type UnhandledRequestStrategy,
   SetupApi,
   RequestHandler,
   WebSocketHandler,
-  getResponse,
+  handleRequest,
 } from 'msw'
 import {
   type WebSocketClientEventMap,
@@ -26,7 +27,8 @@ import {
 } from '@mswjs/interceptors/WebSocket'
 
 export interface CreateNetworkFixtureArgs {
-  initialHandlers: Array<RequestHandler | WebSocketHandler>
+  initialHandlers?: Array<RequestHandler | WebSocketHandler>
+  onUnhandledRequest?: UnhandledRequestStrategy
 }
 
 /**
@@ -50,7 +52,6 @@ export interface CreateNetworkFixtureArgs {
  */
 export function createNetworkFixture(
   args?: CreateNetworkFixtureArgs,
-  /** @todo `onUnhandledRequest`? */
 ): [
   TestFixture<NetworkFixture, PlaywrightTestArgs & PlaywrightWorkerArgs>,
   { auto: boolean },
@@ -60,6 +61,7 @@ export function createNetworkFixture(
       const worker = new NetworkFixture({
         page,
         initialHandlers: args?.initialHandlers || [],
+        onUnhandledRequest: args?.onUnhandledRequest,
       })
 
       await worker.start()
@@ -79,19 +81,19 @@ export function createNetworkFixture(
 export const INTERNAL_MATCH_ALL_REG_EXP = /.+(__MSW_PLAYWRIGHT_PREDICATE__)?/
 
 export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
-  #page: Page
-
-  constructor(args: {
-    page: Page
-    initialHandlers: Array<RequestHandler | WebSocketHandler>
-  }) {
+  constructor(
+    protected args: {
+      page: Page
+      initialHandlers: Array<RequestHandler | WebSocketHandler>
+      onUnhandledRequest?: UnhandledRequestStrategy
+    },
+  ) {
     super(...args.initialHandlers)
-    this.#page = args.page
   }
 
   public async start(): Promise<void> {
     // Handle HTTP requests.
-    await this.#page.route(
+    await this.args.page.route(
       INTERNAL_MATCH_ALL_REG_EXP,
       async (route: Route, request: Request) => {
         const fetchRequest = new Request(request.url(), {
@@ -100,13 +102,29 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           body: request.postDataBuffer(),
         })
 
-        const response = await getResponse(
-          this.handlersController.currentHandlers().filter((handler) => {
+        const handlers = this.handlersController
+          .currentHandlers()
+          .filter((handler) => {
             return handler instanceof RequestHandler
-          }),
+          })
+
+        /**
+         * @note Use `handleRequest` instead of `getResponse` so we can pass
+         * the `onUnhandledRequest` option as-is and benefit from MSW's default behaviors.
+         */
+        const response = await handleRequest(
           fetchRequest,
+          crypto.randomUUID(),
+          handlers,
           {
-            baseUrl: this.getPageUrl(),
+            onUnhandledRequest: this.args.onUnhandledRequest || 'bypass',
+          },
+          this.emitter,
+          {
+            resolutionContext: {
+              quiet: true,
+              baseUrl: this.getPageUrl(),
+            },
           },
         )
 
@@ -131,44 +149,47 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
     )
 
     // Handle WebSocket connections.
-    await this.#page.routeWebSocket(INTERNAL_MATCH_ALL_REG_EXP, async (ws) => {
-      const allWebSocketHandlers = this.handlersController
-        .currentHandlers()
-        .filter((handler) => {
-          return handler instanceof WebSocketHandler
-        })
+    await this.args.page.routeWebSocket(
+      INTERNAL_MATCH_ALL_REG_EXP,
+      async (ws) => {
+        const allWebSocketHandlers = this.handlersController
+          .currentHandlers()
+          .filter((handler) => {
+            return handler instanceof WebSocketHandler
+          })
 
-      if (allWebSocketHandlers.length === 0) {
-        ws.connectToServer()
-        return
-      }
+        if (allWebSocketHandlers.length === 0) {
+          ws.connectToServer()
+          return
+        }
 
-      const client = new PlaywrightWebSocketClientConnection(ws)
-      const server = new PlaywrightWebSocketServerConnection(ws)
+        const client = new PlaywrightWebSocketClientConnection(ws)
+        const server = new PlaywrightWebSocketServerConnection(ws)
 
-      for (const handler of allWebSocketHandlers) {
-        await handler.run(
-          {
-            client,
-            server,
-            info: { protocols: [] },
-          },
-          {
-            baseUrl: this.getPageUrl(),
-          },
-        )
-      }
-    })
+        for (const handler of allWebSocketHandlers) {
+          await handler.run(
+            {
+              client,
+              server,
+              info: { protocols: [] },
+            },
+            {
+              baseUrl: this.getPageUrl(),
+            },
+          )
+        }
+      },
+    )
   }
 
   public async stop(): Promise<void> {
     super.dispose()
-    await this.#page.unroute(INTERNAL_MATCH_ALL_REG_EXP)
-    await unrouteWebSocket(this.#page, INTERNAL_MATCH_ALL_REG_EXP)
+    await this.args.page.unroute(INTERNAL_MATCH_ALL_REG_EXP)
+    await unrouteWebSocket(this.args.page, INTERNAL_MATCH_ALL_REG_EXP)
   }
 
   private getPageUrl(): string | undefined {
-    const url = this.#page.url()
+    const url = this.args.page.url()
     return url !== 'about:blank' ? url : undefined
   }
 }
