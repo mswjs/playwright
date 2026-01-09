@@ -47,13 +47,13 @@
   },
   "devDependencies": {
     "@epic-web/test-server": "^0.1.6",
-    "@ossjs/release": "^0.8.1",
+    "@ossjs/release": "^0.10.1",
     "@playwright/test": "^1.57.0",
     "@types/node": "^22.15.29",
     "msw": "^2.10.3",
     "tsdown": "^0.12.7",
     "typescript": "^5.8.3",
-    "vite": "^7.0.2"
+    "vite": "^7.3.1"
   },
   "dependencies": {
     "@mswjs/interceptors": "^0.39.2",
