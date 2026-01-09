@@ -175,11 +175,11 @@ test('closes the client connection with a non-configurable code', async ({
 
 test('connects to the actual server', async ({ network, page }) => {
   await using httpServer = await createTestHttpServer({
-    protocols: ['http']
+    protocols: ['http'],
   })
   await using wss = createWebSocketMiddleware({
     server: httpServer,
-    pathname: '/ws'
+    pathname: '/ws',
   })
 
   const serverMessage = Promise.withResolvers<string>()
@@ -195,12 +195,12 @@ test('connects to the actual server', async ({ network, page }) => {
     link.addEventListener('connection', ({ server }) => {
       server.connect()
       server.send('hello from the client')
-    })
+    }),
   )
 
   await page.goto('')
 
-   const wasOpened = await page.evaluate((wsUrl) => {
+  const wasOpened = await page.evaluate((wsUrl) => {
     const ws = new WebSocket(wsUrl)
 
     return new Promise<boolean>((resolve, reject) => {

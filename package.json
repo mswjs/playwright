@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@msw/playwright",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Mock Service Worker binding for Playwright",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -29,8 +29,7 @@
   "funding": "https://github.com/sponsors/mswjs",
   "homepage": "https://mswjs.io",
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mswjs/playwright.git"
+    "url": "https://github.com/mswjs/playwright"
   },
   "author": {
     "name": "Artem Zakharchenko",
@@ -47,16 +46,16 @@
   },
   "devDependencies": {
     "@epic-web/test-server": "^0.1.6",
-    "@ossjs/release": "^0.8.1",
-    "@playwright/test": "^1.52.0",
+    "@ossjs/release": "^0.10.1",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^22.15.29",
-    "msw": "^2.10.3",
+    "msw": "^2.12.7",
     "tsdown": "^0.12.7",
-    "typescript": "^5.8.3",
-    "vite": "^7.0.2"
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
   },
   "dependencies": {
-    "@mswjs/interceptors": "^0.39.2",
+    "@mswjs/interceptors": "^0.40.0",
     "outvariant": "^1.4.3"
   }
 }
