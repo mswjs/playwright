@@ -52,9 +52,9 @@ export function createNetworkFixture(
   args?: CreateNetworkFixtureArgs,
   /** @todo `onUnhandledRequest`? */
 ): [
-    TestFixture<NetworkFixture, PlaywrightTestArgs & PlaywrightWorkerArgs>,
-    { auto: boolean },
-  ] {
+  TestFixture<NetworkFixture, PlaywrightTestArgs & PlaywrightWorkerArgs>,
+  { auto: boolean },
+] {
   return [
     async ({ page }, use) => {
       const worker = new NetworkFixture({
@@ -79,51 +79,50 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   }) {
     super(...args.initialHandlers)
     this.#page = args.page
-
-  }
-
-  async httpHandler(route: Route, request: Request) {
-    const fetchRequest = new Request(request.url(), {
-      method: request.method(),
-      headers: new Headers(await request.allHeaders()),
-      body: request.postDataBuffer(),
-    })
-
-    const response = await getResponse(
-      this.handlersController.currentHandlers().filter((handler) => {
-        return handler instanceof RequestHandler
-      }),
-      fetchRequest,
-      {
-        baseUrl: this.getPageUrl(),
-      },
-    )
-
-    if (response) {
-      if (response.status === 0) {
-        route.abort()
-        return
-      }
-
-      route.fulfill({
-        status: response.status,
-        headers: Object.fromEntries(response.headers),
-        body: response.body
-          ? Buffer.from(await response.arrayBuffer())
-          : undefined,
-      })
-      return
-    }
-
-    route.continue()
   }
 
   public async start() {
+    const httpRequestListener = async (route: Route, request: Request) => {
+      const fetchRequest = new Request(request.url(), {
+        method: request.method(),
+        headers: new Headers(await request.allHeaders()),
+        body: request.postDataBuffer(),
+      })
+
+      const response = await getResponse(
+        this.handlersController.currentHandlers().filter((handler) => {
+          return handler instanceof RequestHandler
+        }),
+        fetchRequest,
+        {
+          baseUrl: this.getPageUrl(),
+        },
+      )
+
+      if (response) {
+        if (response.status === 0) {
+          route.abort()
+          return
+        }
+
+        route.fulfill({
+          status: response.status,
+          headers: Object.fromEntries(response.headers),
+          body: response.body
+            ? Buffer.from(await response.arrayBuffer())
+            : undefined,
+        })
+        return
+      }
+
+      route.continue()
+    }
+
     // Handle HTTP requests.
-    await this.#page.route(/.+/, this.httpHandler)
+    await this.#page.route(/.+/, httpRequestListener)
 
     this.subscriptions.push(async () => {
-      await this.#page.unroute(/.+/, this.httpHandler)
+      await this.#page.unroute(/.+/, httpRequestListener)
     })
 
     // Handle WebSocket connections.
@@ -169,7 +168,8 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
 }
 
 class PlaywrightWebSocketClientConnection
-  implements WebSocketClientConnectionProtocol {
+  implements WebSocketClientConnectionProtocol
+{
   public id: string
   public url: URL
 
@@ -272,7 +272,8 @@ class PlaywrightWebSocketClientConnection
 }
 
 class PlaywrightWebSocketServerConnection
-  implements WebSocketServerConnectionProtocol {
+  implements WebSocketServerConnectionProtocol
+{
   #server?: WebSocketRoute
   #bufferedEvents: Array<
     Parameters<WebSocketServerConnectionProtocol['addEventListener']>
