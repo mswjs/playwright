@@ -6,13 +6,12 @@ on:
       - main
   workflow_dispatch:
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,7 +28,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
           always-auth: true
           registry-url: https://registry.npmjs.org
 
