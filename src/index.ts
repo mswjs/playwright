@@ -1,5 +1,5 @@
 export {
   type CreateNetworkFixtureArgs,
-  type NetworkFixture,
+  NetworkFixture,
   createNetworkFixture,
 } from './fixture.js'
