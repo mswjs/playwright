@@ -15,60 +15,63 @@ const test = testBase.extend<Fixtures>({
   network: createNetworkFixture(),
 })
 
-test('registers a single HTTP route', async ({ page }) => {
-  expect(Reflect.get(page, '_routes')).toEqual([
+test('registers a single HTTP route', async ({ context }) => {
+  expect(Reflect.get(context, '_routes')).toEqual([
     expect.objectContaining({ url: INTERNAL_MATCH_ALL_REG_EXP }),
   ])
 })
 
 test('unroutes the HTTP route when the fixture is stopped', async ({
-  page,
+  context,
   network,
 }) => {
   await network.stop()
-  expect(Reflect.get(page, '_routes')).toEqual([])
+  expect(Reflect.get(context, '_routes')).toEqual([])
 })
 
-test('preserves user-defined HTTP routes', async ({ page, network }) => {
+test('preserves user-defined HTTP routes', async ({ context, network }) => {
   const routeHandler = () => {}
-  await page.route('/user-defined', routeHandler)
+  await context.route('/user-defined', routeHandler)
 
-  expect(Reflect.get(page, '_routes')).toEqual([
+  expect(Reflect.get(context, '_routes')).toEqual([
     expect.objectContaining({ url: '/user-defined', handler: routeHandler }),
     expect.objectContaining({ url: INTERNAL_MATCH_ALL_REG_EXP }),
   ])
 
   await network.stop()
-  expect(Reflect.get(page, '_routes')).toEqual([
+  expect(Reflect.get(context, '_routes')).toEqual([
     expect.objectContaining({ url: '/user-defined', handler: routeHandler }),
   ])
 })
 
-test('registers a single WebSocket handler', async ({ page }) => {
-  expect(Reflect.get(page, '_webSocketRoutes')).toEqual([
+test('registers a single WebSocket handler', async ({ context }) => {
+  expect(Reflect.get(context, '_webSocketRoutes')).toEqual([
     expect.objectContaining({ url: INTERNAL_MATCH_ALL_REG_EXP }),
   ])
 })
 
 test('unroutes the WebSocket handler when the fixture is stopped', async ({
-  page,
+  context,
   network,
 }) => {
   await network.stop()
-  expect(Reflect.get(page, '_webSocketRoutes')).toEqual([])
+  expect(Reflect.get(context, '_webSocketRoutes')).toEqual([])
 })
 
-test('preserves user-defined WebSocket routes', async ({ page, network }) => {
+test('preserves user-defined WebSocket routes', async ({
+  context,
+  network,
+}) => {
   const routeHandler = () => {}
-  await page.routeWebSocket('/user-defined', routeHandler)
+  await context.routeWebSocket('/user-defined', routeHandler)
 
-  expect(Reflect.get(page, '_webSocketRoutes')).toEqual([
+  expect(Reflect.get(context, '_webSocketRoutes')).toEqual([
     expect.objectContaining({ url: '/user-defined', handler: routeHandler }),
     expect.objectContaining({ url: INTERNAL_MATCH_ALL_REG_EXP }),
   ])
 
   await network.stop()
-  expect(Reflect.get(page, '_webSocketRoutes')).toEqual([
+  expect(Reflect.get(context, '_webSocketRoutes')).toEqual([
     expect.objectContaining({ url: '/user-defined', handler: routeHandler }),
   ])
 })
