@@ -1,9 +1,10 @@
 import { invariant } from 'outvariant'
 import type {
+  BrowserContext,
   Page,
   PlaywrightTestArgs,
   PlaywrightWorkerArgs,
-  Request,
+  Request as PlaywrightRequest,
   Route,
   TestFixture,
   WebSocketRoute,
@@ -57,9 +58,9 @@ export function createNetworkFixture(
   { auto: boolean },
 ] {
   return [
-    async ({ page }, use) => {
+    async ({ context }, use) => {
       const worker = new NetworkFixture({
-        page,
+        context,
         initialHandlers: args?.initialHandlers || [],
         onUnhandledRequest: args?.onUnhandledRequest,
       })
@@ -83,7 +84,7 @@ export const INTERNAL_MATCH_ALL_REG_EXP = /.+(__MSW_PLAYWRIGHT_PREDICATE__)?/
 export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   constructor(
     protected args: {
-      page: Page
+      context: BrowserContext
       initialHandlers: Array<RequestHandler | WebSocketHandler>
       onUnhandledRequest?: UnhandledRequestStrategy
     },
@@ -93,13 +94,13 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
 
   public async start(): Promise<void> {
     // Handle HTTP requests.
-    await this.args.page.route(
+    await this.args.context.route(
       INTERNAL_MATCH_ALL_REG_EXP,
-      async (route: Route, request: Request) => {
+      async (route: Route, request: PlaywrightRequest) => {
         const fetchRequest = new Request(request.url(), {
           method: request.method(),
           headers: new Headers(await request.allHeaders()),
-          body: request.postDataBuffer(),
+          body: request.postDataBuffer() as ArrayBuffer | null,
         })
 
         const handlers = this.handlersController
@@ -107,6 +108,10 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           .filter((handler) => {
             return handler instanceof RequestHandler
           })
+
+        const baseUrl = request.headers().referer
+          ? new URL(request.headers().referer).origin
+          : undefined
 
         /**
          * @note Use `handleRequest` instead of `getResponse` so we can pass
@@ -123,35 +128,33 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           {
             resolutionContext: {
               quiet: true,
-              baseUrl: this.getPageUrl(),
+              baseUrl,
             },
           },
         )
 
         if (response) {
           if (response.status === 0) {
-            route.abort()
-            return
+            return route.abort()
           }
 
-          route.fulfill({
+          return route.fulfill({
             status: response.status,
             headers: Object.fromEntries(response.headers),
             body: response.body
               ? Buffer.from(await response.arrayBuffer())
               : undefined,
           })
-          return
         }
 
-        route.continue()
+        return route.continue()
       },
     )
 
     // Handle WebSocket connections.
-    await this.args.page.routeWebSocket(
+    await this.args.context.routeWebSocket(
       INTERNAL_MATCH_ALL_REG_EXP,
-      async (ws) => {
+      async (route) => {
         const allWebSocketHandlers = this.handlersController
           .currentHandlers()
           .filter((handler) => {
@@ -159,12 +162,16 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           })
 
         if (allWebSocketHandlers.length === 0) {
-          ws.connectToServer()
+          route.connectToServer()
           return
         }
 
-        const client = new PlaywrightWebSocketClientConnection(ws)
-        const server = new PlaywrightWebSocketServerConnection(ws)
+        const client = new PlaywrightWebSocketClientConnection(route)
+        const server = new PlaywrightWebSocketServerConnection(route)
+
+        const pages = this.args.context.pages()
+        const lastPage = pages[pages.length - 1]
+        const baseUrl = lastPage ? this.getPageUrl(lastPage) : undefined
 
         for (const handler of allWebSocketHandlers) {
           await handler.run(
@@ -174,7 +181,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
               info: { protocols: [] },
             },
             {
-              baseUrl: this.getPageUrl(),
+              baseUrl,
             },
           )
         }
@@ -184,19 +191,23 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
 
   public async stop(): Promise<void> {
     super.dispose()
-    await this.args.page.unroute(INTERNAL_MATCH_ALL_REG_EXP)
-    await unrouteWebSocket(this.args.page, INTERNAL_MATCH_ALL_REG_EXP)
+    await this.args.context.unroute(INTERNAL_MATCH_ALL_REG_EXP)
+    await unrouteWebSocket(this.args.context, INTERNAL_MATCH_ALL_REG_EXP)
   }
 
-  private getPageUrl(): string | undefined {
-    const url = this.args.page.url()
-    return url !== 'about:blank' ? url : undefined
+  private getPageUrl(page: Page): string | undefined {
+    const url = page.url()
+
+    if (url === 'about:blank') {
+      return
+    }
+
+    // Encode/decode to preserve escape characters.
+    return decodeURI(new URL(encodeURI(url)).origin)
   }
 }
 
-class PlaywrightWebSocketClientConnection
-  implements WebSocketClientConnectionProtocol
-{
+class PlaywrightWebSocketClientConnection implements WebSocketClientConnectionProtocol {
   public id: string
   public url: URL
 
@@ -298,9 +309,7 @@ class PlaywrightWebSocketClientConnection
   }
 }
 
-class PlaywrightWebSocketServerConnection
-  implements WebSocketServerConnectionProtocol
-{
+class PlaywrightWebSocketServerConnection implements WebSocketServerConnectionProtocol {
   #server?: WebSocketRoute
   #bufferedEvents: Array<
     Parameters<WebSocketServerConnectionProtocol['addEventListener']>
@@ -411,22 +420,24 @@ interface InternalWebSocketRoute {
  * WebSocket route handlers from the page. Loosely inspired by `page.unroute()`.
  */
 async function unrouteWebSocket(
-  page: Page,
+  target: BrowserContext,
   url: InternalWebSocketRoute['url'],
   handler?: InternalWebSocketRoute['handler'],
 ): Promise<void> {
-  if (!('_webSocketRoutes' in page && Array.isArray(page._webSocketRoutes))) {
+  if (
+    !('_webSocketRoutes' in target && Array.isArray(target._webSocketRoutes))
+  ) {
     return
   }
 
-  for (let i = page._webSocketRoutes.length - 1; i >= 0; i--) {
-    const route = page._webSocketRoutes[i] as InternalWebSocketRoute
+  for (let i = target._webSocketRoutes.length - 1; i >= 0; i--) {
+    const route = target._webSocketRoutes[i] as InternalWebSocketRoute
 
     if (
       route.url === url &&
       (handler != null ? route.handler === handler : true)
     ) {
-      page._webSocketRoutes.splice(i, 1)
+      target._webSocketRoutes.splice(i, 1)
     }
   }
 }

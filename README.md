@@ -66,6 +66,10 @@ test('displays the user dashboard', async ({ network, page }) => {
 })
 ```
 
+## Limitations
+
+- Since `context.routeWebSocket()` provides no means of knowing which page triggered a WebSocket connection, relative WebSocket URLs in `ws.link(url)` will be resolved against the _latest_ created page in the browser context.
+
 ## Comparison
 
 ### `playwright-msw`

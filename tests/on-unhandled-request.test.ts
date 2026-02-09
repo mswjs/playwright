@@ -1,5 +1,4 @@
 import { test as testBase, expect } from '@playwright/test'
-import { http } from 'msw'
 import sinon from 'sinon'
 import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
@@ -17,14 +16,14 @@ test.afterAll(() => {
   sinon.restore()
 })
 
-test('prints a warning on an unhandled request', async ({ page, network }) => {
+test('prints a warning on an unhandled request', async ({ page }) => {
   const consoleSpy = sinon.stub(console, 'warn')
 
   await page.goto('/')
   await page.evaluate(() => fetch('/unhandled'))
 
   expect.soft(consoleSpy.callCount).toBe(2)
-  expect(consoleSpy.getCall(1).args).toEqual([
+  expect(consoleSpy.getCall(1)?.args).toEqual([
     `[MSW] Warning: intercepted a request without a matching request handler:
 
   • GET http://localhost:5173/unhandled
