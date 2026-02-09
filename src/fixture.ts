@@ -16,6 +16,7 @@ import {
   RequestHandler,
   WebSocketHandler,
   handleRequest,
+  isCommonAssetRequest,
 } from 'msw'
 import {
   type WebSocketClientEventMap,
@@ -30,6 +31,14 @@ import {
 export interface CreateNetworkFixtureArgs {
   initialHandlers?: Array<RequestHandler | WebSocketHandler>
   onUnhandledRequest?: UnhandledRequestStrategy
+  /**
+   * Skip common asset requests (e.g. `*.html`, `*.css`, `*.js`, etc).
+   * This improves performance for certian projects.
+   * @default true
+   *
+   * @see https://mswjs.io/docs/api/is-common-asset-request
+   */
+  skipAssetRequests?: boolean
 }
 
 /**
@@ -61,6 +70,7 @@ export function createNetworkFixture(
     async ({ context }, use) => {
       const worker = new NetworkFixture({
         context,
+        skipAssetRequests: args?.skipAssetRequests ?? true,
         initialHandlers: args?.initialHandlers || [],
         onUnhandledRequest: args?.onUnhandledRequest,
       })
@@ -85,6 +95,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
   constructor(
     protected args: {
       context: BrowserContext
+      skipAssetRequests: boolean
       initialHandlers: Array<RequestHandler | WebSocketHandler>
       onUnhandledRequest?: UnhandledRequestStrategy
     },
@@ -102,6 +113,16 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           headers: new Headers(await request.allHeaders()),
           body: request.postDataBuffer() as ArrayBuffer | null,
         })
+
+        /**
+         * @note Skip common asset requests (default).
+         * Playwright seems to experience performance degradation when routing all
+         * requests through the matching logic below.
+         * @see https://github.com/mswjs/playwright/issues/13
+         */
+        if (this.args.skipAssetRequests && isCommonAssetRequest(fetchRequest)) {
+          return route.continue()
+        }
 
         const handlers = this.handlersController
           .currentHandlers()
