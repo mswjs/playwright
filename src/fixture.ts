@@ -29,9 +29,16 @@ import {
 } from '@mswjs/interceptors/WebSocket'
 
 export interface CreateNetworkFixtureArgs {
-  ignoreCommonAssetRequests?: boolean
   initialHandlers?: Array<RequestHandler | WebSocketHandler>
   onUnhandledRequest?: UnhandledRequestStrategy
+  /**
+   * Skip common asset requests (e.g. `*.html`, `*.css`, `*.js`, etc).
+   * This improves performance for certian projects.
+   * @default true
+   *
+   * @see https://mswjs.io/docs/api/is-common-asset-request
+   */
+  skipAssetRequests?: boolean
 }
 
 /**
@@ -63,7 +70,7 @@ export function createNetworkFixture(
     async ({ context }, use) => {
       const worker = new NetworkFixture({
         context,
-        ignoreCommonAssetRequests: args?.ignoreCommonAssetRequests ?? true,
+        skipAssetRequests: args?.skipAssetRequests ?? true,
         initialHandlers: args?.initialHandlers || [],
         onUnhandledRequest: args?.onUnhandledRequest,
       })
@@ -85,18 +92,15 @@ export function createNetworkFixture(
 export const INTERNAL_MATCH_ALL_REG_EXP = /.+(__MSW_PLAYWRIGHT_PREDICATE__)?/
 
 export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
-  #ignoreCommonAssetRequests: boolean
-
   constructor(
     protected args: {
       context: BrowserContext
-      ignoreCommonAssetRequests: boolean
+      skipAssetRequests: boolean
       initialHandlers: Array<RequestHandler | WebSocketHandler>
       onUnhandledRequest?: UnhandledRequestStrategy
     },
   ) {
     super(...args.initialHandlers)
-    this.#ignoreCommonAssetRequests = args.ignoreCommonAssetRequests
   }
 
   public async start(): Promise<void> {
@@ -110,12 +114,14 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           body: request.postDataBuffer() as ArrayBuffer | null,
         })
 
-        if (
-          this.#ignoreCommonAssetRequests &&
-          isCommonAssetRequest(fetchRequest)
-        ) {
-          route.continue()
-          return
+        /**
+         * @note Skip common asset requests (default).
+         * Playwright seems to experience performance degradation when routing all
+         * requests through the matching logic below.
+         * @see https://github.com/mswjs/playwright/issues/13
+         */
+        if (this.args.skipAssetRequests && isCommonAssetRequest(fetchRequest)) {
+          return route.continue()
         }
 
         const handlers = this.handlersController
