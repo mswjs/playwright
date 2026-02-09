@@ -30,10 +30,9 @@ test('responds with the override mocked response', async ({
 
   await page.goto('/')
 
-  const data = await page.evaluate(() => {
-    return fetch('/resource').then((response) => {
-      return response.text()
-    })
+  const data = await page.evaluate(async () => {
+    const response = await fetch('/resource')
+    return response.text()
   })
 
   expect(data).toBe('hello world')
@@ -42,10 +41,9 @@ test('responds with the override mocked response', async ({
 test('responds with a fallback response', async ({ page }) => {
   await page.goto('/')
 
-  const data = await page.evaluate(() => {
-    return fetch('/intentionally-unknown').then((response) => {
-      return response.text()
-    })
+  const data = await page.evaluate(async () => {
+    const response = await fetch('/intentionally-unknown')
+    return response.text()
   })
 
   expect(data).toBe('fallback')
