@@ -109,10 +109,6 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
             return handler instanceof RequestHandler
           })
 
-        if (handlers.length === 0) {
-          return route.continue()
-        }
-
         const baseUrl = request.headers().referer
           ? new URL(request.headers().referer).origin
           : undefined
