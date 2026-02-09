@@ -100,7 +100,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
         const fetchRequest = new Request(request.url(), {
           method: request.method(),
           headers: new Headers(await request.allHeaders()),
-          body: request.postDataBuffer(),
+          body: request.postDataBuffer() as ArrayBuffer | null,
         })
 
         const handlers = this.handlersController
