@@ -1,5 +1,5 @@
 import { test as testBase, expect } from '@playwright/test'
-import { http } from 'msw'
+import { http, HttpResponse } from 'msw'
 import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
@@ -13,7 +13,7 @@ const test = testBase.extend<Fixtures>({
 test.beforeEach(({ network }) => {
   network.use(
     http.get('*', () => {
-      return new Response('fallback')
+      return new HttpResponse('fallback')
     }),
   )
 })
@@ -24,7 +24,7 @@ test('responds with the override mocked response', async ({
 }) => {
   network.use(
     http.get('/resource', () => {
-      return new Response('hello world')
+      return new HttpResponse('hello world')
     }),
   )
 
