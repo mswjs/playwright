@@ -2,21 +2,18 @@ import { invariant } from 'outvariant'
 import type {
   BrowserContext,
   Page,
-  PlaywrightTestArgs,
-  PlaywrightWorkerArgs,
   Request as PlaywrightRequest,
   Route,
-  TestFixture,
   WebSocketRoute,
 } from '@playwright/test'
+import { WebSocketHandler } from 'msw'
 import {
-  type LifeCycleEventsMap,
-  type UnhandledRequestStrategy,
   SetupApi,
-  RequestHandler,
-  WebSocketHandler,
   handleRequest,
   isCommonAssetRequest,
+  type AnyHandler,
+  type LifeCycleEventsMap,
+  type UnhandledRequestStrategy,
 } from 'msw'
 import {
   type WebSocketClientEventMap,
@@ -27,9 +24,11 @@ import {
   WebSocketClientConnectionProtocol,
   WebSocketServerConnectionProtocol,
 } from '@mswjs/interceptors/WebSocket'
+import { RequestHandler } from 'msw'
 
-export interface CreateNetworkFixtureArgs {
-  initialHandlers?: Array<RequestHandler | WebSocketHandler>
+export interface NetworkFixtureOptions {
+  context: BrowserContext
+  handlers?: Array<AnyHandler>
   onUnhandledRequest?: UnhandledRequestStrategy
   /**
    * Skip common asset requests (e.g. `*.html`, `*.css`, `*.js`, etc).
@@ -41,46 +40,27 @@ export interface CreateNetworkFixtureArgs {
   skipAssetRequests?: boolean
 }
 
-/**
- * Creates a fixture that controls the network in your tests.
- *
- * @note The returned fixture already has the `auto` option set to `true`.
- *
- * **Usage**
- * ```ts
- * import { test as testBase } from '@playwright/test'
- * import { createNetworkFixture, type WorkerFixture } from '@msw/playwright'
- *
- * interface Fixtures {
- *  network: WorkerFixture
- * }
- *
- * export const test = testBase.extend<Fixtures>({
- *   network: createNetworkFixture()
- * })
- * ```
- */
-export function createNetworkFixture(
-  args?: CreateNetworkFixtureArgs,
-): [
-  TestFixture<NetworkFixture, PlaywrightTestArgs & PlaywrightWorkerArgs>,
-  { auto: boolean },
-] {
-  return [
-    async ({ context }, use) => {
-      const worker = new NetworkFixture({
-        context,
-        skipAssetRequests: args?.skipAssetRequests ?? true,
-        initialHandlers: args?.initialHandlers || [],
-        onUnhandledRequest: args?.onUnhandledRequest,
-      })
+export type NetworkFixture = Omit<SetupApi<LifeCycleEventsMap>, 'dispose'> & {
+  enable: () => Promise<void>
+  disable: () => Promise<void>
+}
 
-      await worker.start()
-      await use(worker)
-      await worker.stop()
-    },
-    { auto: true },
-  ]
+export function defineNetworkFixture(
+  options: NetworkFixtureOptions,
+): NetworkFixture {
+  return new SetupPlaywrightApi({
+    context: options.context,
+    initialHandlers: options.handlers || [],
+    onUnhandledRequest: options.onUnhandledRequest,
+    skipAssetRequests: options.skipAssetRequests ?? true,
+  })
+}
+
+interface SetupPlaywrightOptions {
+  context: BrowserContext
+  initialHandlers: Array<AnyHandler>
+  onUnhandledRequest?: UnhandledRequestStrategy
+  skipAssetRequests?: boolean
 }
 
 /**
@@ -91,21 +71,14 @@ export function createNetworkFixture(
  */
 export const INTERNAL_MATCH_ALL_REG_EXP = /.+(__MSW_PLAYWRIGHT_PREDICATE__)?/
 
-export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
-  constructor(
-    protected args: {
-      context: BrowserContext
-      skipAssetRequests: boolean
-      initialHandlers: Array<RequestHandler | WebSocketHandler>
-      onUnhandledRequest?: UnhandledRequestStrategy
-    },
-  ) {
-    super(...args.initialHandlers)
+class SetupPlaywrightApi extends SetupApi<LifeCycleEventsMap> {
+  constructor(private readonly options: SetupPlaywrightOptions) {
+    super(...options.initialHandlers)
   }
 
-  public async start(): Promise<void> {
+  public async enable(): Promise<void> {
     // Handle HTTP requests.
-    await this.args.context.route(
+    await this.options.context.route(
       INTERNAL_MATCH_ALL_REG_EXP,
       async (route: Route, request: PlaywrightRequest) => {
         const fetchRequest = new Request(request.url(), {
@@ -120,7 +93,10 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
          * requests through the matching logic below.
          * @see https://github.com/mswjs/playwright/issues/13
          */
-        if (this.args.skipAssetRequests && isCommonAssetRequest(fetchRequest)) {
+        if (
+          this.options.skipAssetRequests &&
+          isCommonAssetRequest(fetchRequest)
+        ) {
           return route.continue()
         }
 
@@ -143,7 +119,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
           crypto.randomUUID(),
           handlers,
           {
-            onUnhandledRequest: this.args.onUnhandledRequest || 'bypass',
+            onUnhandledRequest: this.options.onUnhandledRequest || 'bypass',
           },
           this.emitter,
           {
@@ -173,7 +149,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
     )
 
     // Handle WebSocket connections.
-    await this.args.context.routeWebSocket(
+    await this.options.context.routeWebSocket(
       INTERNAL_MATCH_ALL_REG_EXP,
       async (route) => {
         const allWebSocketHandlers = this.handlersController
@@ -190,7 +166,7 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
         const client = new PlaywrightWebSocketClientConnection(route)
         const server = new PlaywrightWebSocketServerConnection(route)
 
-        const pages = this.args.context.pages()
+        const pages = this.options.context.pages()
         const lastPage = pages[pages.length - 1]
         const baseUrl = lastPage ? this.getPageUrl(lastPage) : undefined
 
@@ -210,10 +186,10 @@ export class NetworkFixture extends SetupApi<LifeCycleEventsMap> {
     )
   }
 
-  public async stop(): Promise<void> {
+  public async disable(): Promise<void> {
     super.dispose()
-    await this.args.context.unroute(INTERNAL_MATCH_ALL_REG_EXP)
-    await unrouteWebSocket(this.args.context, INTERNAL_MATCH_ALL_REG_EXP)
+    await this.options.context.unroute(INTERNAL_MATCH_ALL_REG_EXP)
+    await unrouteWebSocket(this.options.context, INTERNAL_MATCH_ALL_REG_EXP)
   }
 
   private getPageUrl(page: Page): string | undefined {

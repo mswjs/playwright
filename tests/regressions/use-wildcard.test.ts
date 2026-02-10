@@ -2,22 +2,37 @@
  * @see https://github.com/mswjs/playwright/issues/26
  */
 import { test as testBase, expect } from '@playwright/test'
-import { http, HttpResponse } from 'msw'
-import { createNetworkFixture, type NetworkFixture } from '../../src/index.js'
+import { http, HttpResponse, type AnyHandler } from 'msw'
+import { defineNetworkFixture, type NetworkFixture } from '../../src/index.js'
 
 interface Fixtures {
+  handlers: Array<AnyHandler>
   network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  network: createNetworkFixture({
-    initialHandlers: [
+  handlers: [
+    [
       // A permissive wildcard handler.
       http.get('*/objects/:tableName', () => {
         return HttpResponse.text('initial')
       }),
     ],
-  }),
+    { option: true },
+  ],
+  network: [
+    async ({ context, handlers }, use) => {
+      const network = defineNetworkFixture({
+        context,
+        handlers,
+      })
+
+      await network.enable()
+      await use(network)
+      await network.disable()
+    },
+    { auto: true },
+  ],
 })
 
 test('uses a narrower handler to respond to a matching request', async ({

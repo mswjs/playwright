@@ -1,13 +1,27 @@
 import { test as testBase, expect } from '@playwright/test'
-import { http, HttpResponse, ws } from 'msw'
-import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
+import { http, HttpResponse, ws, type AnyHandler } from 'msw'
+import { defineNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
+  handlers: Array<AnyHandler>
   network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  network: createNetworkFixture(),
+  handlers: [[], { option: true }],
+  network: [
+    async ({ context, handlers }, use) => {
+      const network = defineNetworkFixture({
+        context,
+        handlers,
+      })
+
+      await network.enable()
+      await use(network)
+      await network.disable()
+    },
+    { auto: true },
+  ],
 })
 
 test('intercepts an HTTP request on a programmatically created page', async ({

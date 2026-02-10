@@ -4,15 +4,30 @@
  * given Playwright doesn't expose proper means to list route handlers.
  */
 import { test as testBase, expect } from '@playwright/test'
+import type { AnyHandler } from 'msw'
 import { INTERNAL_MATCH_ALL_REG_EXP } from '../../src/fixture.js'
-import { createNetworkFixture, type NetworkFixture } from '../../src/index.js'
+import { defineNetworkFixture, type NetworkFixture } from '../../src/index.js'
 
 interface Fixtures {
+  handlers: Array<AnyHandler>
   network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  network: createNetworkFixture(),
+  handlers: [[], { option: true }],
+  network: [
+    async ({ context, handlers }, use) => {
+      const network = defineNetworkFixture({
+        context,
+        handlers,
+      })
+
+      await network.enable()
+      await use(network)
+      await network.disable()
+    },
+    { auto: true },
+  ],
 })
 
 test('registers a single HTTP route', async ({ context }) => {
@@ -25,7 +40,7 @@ test('unroutes the HTTP route when the fixture is stopped', async ({
   context,
   network,
 }) => {
-  await network.stop()
+  await network.disable()
   expect(Reflect.get(context, '_routes')).toEqual([])
 })
 
@@ -38,7 +53,7 @@ test('preserves user-defined HTTP routes', async ({ context, network }) => {
     expect.objectContaining({ url: INTERNAL_MATCH_ALL_REG_EXP }),
   ])
 
-  await network.stop()
+  await network.disable()
   expect(Reflect.get(context, '_routes')).toEqual([
     expect.objectContaining({ url: '/user-defined', handler: routeHandler }),
   ])
@@ -54,7 +69,7 @@ test('unroutes the WebSocket handler when the fixture is stopped', async ({
   context,
   network,
 }) => {
-  await network.stop()
+  await network.disable()
   expect(Reflect.get(context, '_webSocketRoutes')).toEqual([])
 })
 
@@ -70,7 +85,7 @@ test('preserves user-defined WebSocket routes', async ({
     expect.objectContaining({ url: INTERNAL_MATCH_ALL_REG_EXP }),
   ])
 
-  await network.stop()
+  await network.disable()
   expect(Reflect.get(context, '_webSocketRoutes')).toEqual([
     expect.objectContaining({ url: '/user-defined', handler: routeHandler }),
   ])

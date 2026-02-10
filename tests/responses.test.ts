@@ -1,13 +1,27 @@
 import { test as testBase, expect } from '@playwright/test'
-import { http, HttpResponse } from 'msw'
-import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
+import { http, HttpResponse, type AnyHandler } from 'msw'
+import { defineNetworkFixture, type NetworkFixture } from '../src/fixture.js'
 
 interface Fixtures {
+  handlers: Array<AnyHandler>
   network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  network: createNetworkFixture(),
+  handlers: [[], { option: true }],
+  network: [
+    async ({ context, handlers }, use) => {
+      const network = defineNetworkFixture({
+        context,
+        handlers,
+      })
+
+      await network.enable()
+      await use(network)
+      await network.disable()
+    },
+    { auto: true },
+  ],
 })
 
 test('mocks a response without any body', async ({ network, page }) => {
