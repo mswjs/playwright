@@ -41,7 +41,7 @@ interface Fixtures {
 
 const test = testBase.extend<Fixtures>({
   // Initial list of the network handlers.
-  handlers: [[], { option: true }],
+  handlers: [[handlers], { option: true }],
 
   // A fixture you use to control the network in your tests.
   network: [
