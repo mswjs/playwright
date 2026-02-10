@@ -1,13 +1,27 @@
 import { test as testBase, expect } from '@playwright/test'
-import { http, HttpResponse } from 'msw'
-import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
+import { http, HttpResponse, type AnyHandler } from 'msw'
+import { defineNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
+  handlers: Array<AnyHandler>
   network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  network: createNetworkFixture(),
+  handlers: [[], { option: true }],
+  network: [
+    async ({ context, handlers }, use) => {
+      const network = defineNetworkFixture({
+        context,
+        handlers,
+      })
+
+      await network.enable()
+      await use(network)
+      await network.disable()
+    },
+    { auto: true },
+  ],
 })
 
 test('skips asset requests by default', async ({ network, page }) => {
@@ -19,17 +33,29 @@ test('skips asset requests by default', async ({ network, page }) => {
 
   await page.goto('/')
   const responseBody = await page.evaluate(async () => {
-    const res = await fetch('/index.html')
-    return res.text()
+    const response = await fetch('/index.html')
+    return response.text()
   })
 
   expect(responseBody).toContain('<!DOCTYPE html')
 })
 
 const testWithAssets = testBase.extend<Fixtures>({
-  network: createNetworkFixture({
-    skipAssetRequests: false,
-  }),
+  handlers: [[], { option: true }],
+  network: [
+    async ({ context, handlers }, use) => {
+      const network = defineNetworkFixture({
+        context,
+        handlers,
+        skipAssetRequests: false,
+      })
+
+      await network.enable()
+      await use(network)
+      await network.disable()
+    },
+    { auto: true },
+  ],
 })
 
 testWithAssets(

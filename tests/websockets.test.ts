@@ -1,15 +1,29 @@
 import { test as testBase, expect } from '@playwright/test'
 import { createTestHttpServer } from '@epic-web/test-server/http'
 import { createWebSocketMiddleware } from '@epic-web/test-server/ws'
-import { ws } from 'msw'
-import { createNetworkFixture, type NetworkFixture } from '../src/index.js'
+import { ws, type AnyHandler } from 'msw'
+import { defineNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
+  handlers: Array<AnyHandler>
   network: NetworkFixture
 }
 
 const test = testBase.extend<Fixtures>({
-  network: createNetworkFixture(),
+  handlers: [[], { option: true }],
+  network: [
+    async ({ context, handlers }, use) => {
+      const network = defineNetworkFixture({
+        context,
+        handlers,
+      })
+
+      await network.enable()
+      await use(network)
+      await network.disable()
+    },
+    { auto: true },
+  ],
 })
 
 const api = ws.link('ws://localhost/api')
