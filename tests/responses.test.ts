@@ -19,10 +19,9 @@ test('mocks a response without any body', async ({ network, page }) => {
 
   await page.goto('/')
 
-  const response = await page.evaluate(() => {
-    return fetch('/null').then((response) => {
-      return response.text()
-    })
+  const response = await page.evaluate(async () => {
+    const response = await fetch('/null')
+    return response.text()
   })
 
   /**
