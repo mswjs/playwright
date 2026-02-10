@@ -30,10 +30,12 @@ npm i msw @msw/playwright
 ```ts
 // playwright.setup.ts
 import { test as testBase } from '@playwright/test'
-import { createNetworkFixture, type NetworkFixture } from '@msw/playwright'
+import { type AnyHandler } from 'msw'
+import { defineNetworkFixture, type NetworkFixture } from '@msw/playwright'
 import { handlers } from '../mocks/handlers.js'
 
 interface Fixtures {
+  handlers: Array<AnyHandler>
   network: NetworkFixture
 }
 
