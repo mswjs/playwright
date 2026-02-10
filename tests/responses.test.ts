@@ -41,8 +41,9 @@ test('mocks a response with a text body', async ({ network, page }) => {
 
   await page.goto('/')
 
-  const response = await page.evaluate(() => {
-    return fetch('/text').then((response) => response.text())
+  const response = await page.evaluate(async () => {
+    const response = await fetch('/text')
+    return response.text()
   })
 
   expect(response).toBe('Hello world!')
@@ -57,8 +58,9 @@ test('mocks a response with a json body', async ({ network, page }) => {
 
   await page.goto('/')
 
-  const response = await page.evaluate(() => {
-    return fetch('/json').then((response) => response.json())
+  const response = await page.evaluate(async () => {
+    const response = await fetch('/json')
+    return response.json()
   })
 
   expect(response).toEqual({ hello: 'world' })
@@ -75,15 +77,10 @@ test('mocks a response with an ArrayBuffer body', async ({ network, page }) => {
 
   await page.goto('/')
 
-  const response = await page.evaluate(() => {
-    return (
-      fetch('/arrayBuffer')
-        .then((response) => response.arrayBuffer())
-        /**
-         * @note Playwright doesn't support returning `ArrayBuffer` directly.
-         */
-        .then((data) => new TextDecoder().decode(data))
-    )
+  const response = await page.evaluate(async () => {
+    const response = await fetch('/arrayBuffer')
+    const data = await response.arrayBuffer()
+    return new TextDecoder().decode(data)
   })
 
   expect(response).toBe('hello world')
@@ -100,10 +97,10 @@ test('mocks a response with an FormData body', async ({ network, page }) => {
 
   await page.goto('/')
 
-  const response = await page.evaluate(() => {
-    return fetch('/formData')
-      .then((response) => response.formData())
-      .then((data) => Array.from(data.entries()))
+  const response = await page.evaluate(async () => {
+    const response = await fetch('/formData')
+    const data = await response.formData()
+    return Array.from(data.entries())
   })
 
   expect(response).toEqual([['hello', 'world']])
@@ -126,8 +123,9 @@ test('mocks a response with a stream', async ({ network, page }) => {
 
   await page.goto('/')
 
-  const response = await page.evaluate(() => {
-    return fetch('/stream').then((response) => response.text())
+  const response = await page.evaluate(async () => {
+    const response = await fetch('/stream')
+    return response.text()
   })
 
   expect(response).toBe('hello world')
