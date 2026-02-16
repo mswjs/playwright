@@ -77,8 +77,10 @@ class SetupPlaywrightApi extends SetupApi<LifeCycleEventsMap> {
   }
 
   public async enable(): Promise<void> {
+    const { context } = this.options
+
     // Handle HTTP requests.
-    await this.options.context.route(
+    await context.route(
       INTERNAL_MATCH_ALL_REG_EXP,
       async (route: Route, request: PlaywrightRequest) => {
         const fetchRequest = new Request(request.url(), {
@@ -97,7 +99,7 @@ class SetupPlaywrightApi extends SetupApi<LifeCycleEventsMap> {
           this.options.skipAssetRequests &&
           isCommonAssetRequest(fetchRequest)
         ) {
-          return route.continue()
+          return route.fallback()
         }
 
         const handlers = this.handlersController
@@ -144,46 +146,43 @@ class SetupPlaywrightApi extends SetupApi<LifeCycleEventsMap> {
           })
         }
 
-        return route.continue()
+        return route.fallback()
       },
     )
 
     // Handle WebSocket connections.
-    await this.options.context.routeWebSocket(
-      INTERNAL_MATCH_ALL_REG_EXP,
-      async (route) => {
-        const allWebSocketHandlers = this.handlersController
-          .currentHandlers()
-          .filter((handler) => {
-            return handler instanceof WebSocketHandler
-          })
+    await context.routeWebSocket(INTERNAL_MATCH_ALL_REG_EXP, async (route) => {
+      const allWebSocketHandlers = this.handlersController
+        .currentHandlers()
+        .filter((handler) => {
+          return handler instanceof WebSocketHandler
+        })
 
-        if (allWebSocketHandlers.length === 0) {
-          route.connectToServer()
-          return
-        }
+      if (allWebSocketHandlers.length === 0) {
+        route.connectToServer()
+        return
+      }
 
-        const client = new PlaywrightWebSocketClientConnection(route)
-        const server = new PlaywrightWebSocketServerConnection(route)
+      const client = new PlaywrightWebSocketClientConnection(route)
+      const server = new PlaywrightWebSocketServerConnection(route)
 
-        const pages = this.options.context.pages()
-        const lastPage = pages[pages.length - 1]
-        const baseUrl = lastPage ? this.getPageUrl(lastPage) : undefined
+      const pages = this.options.context.pages()
+      const lastPage = pages[pages.length - 1]
+      const baseUrl = lastPage ? this.getPageUrl(lastPage) : undefined
 
-        for (const handler of allWebSocketHandlers) {
-          await handler.run(
-            {
-              client,
-              server,
-              info: { protocols: [] },
-            },
-            {
-              baseUrl,
-            },
-          )
-        }
-      },
-    )
+      for (const handler of allWebSocketHandlers) {
+        await handler.run(
+          {
+            client,
+            server,
+            info: { protocols: [] },
+          },
+          {
+            baseUrl,
+          },
+        )
+      }
+    })
   }
 
   public async disable(): Promise<void> {
