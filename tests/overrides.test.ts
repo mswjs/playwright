@@ -61,6 +61,24 @@ test('responds with a fallback response', async ({ network, page }) => {
   expect(data).toBe('fallback')
 })
 
+test('respects manual overrides added via `context.route`', async ({
+  context,
+  page,
+}) => {
+  await page.goto('/')
+
+  await context.route('/resource', (route) => {
+    return route.fulfill({ body: 'manual-override' })
+  })
+
+  const data = await page.evaluate(async () => {
+    const response = await fetch('/resource')
+    return response.text()
+  })
+
+  expect(data).toBe('manual-override')
+})
+
 test('respects manual overrides added via `page.route`', async ({ page }) => {
   await page.goto('/')
 
