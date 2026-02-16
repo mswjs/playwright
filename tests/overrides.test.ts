@@ -24,14 +24,6 @@ const test = testBase.extend<Fixtures>({
   ],
 })
 
-test.beforeEach(({ network }) => {
-  network.use(
-    http.get('*', () => {
-      return new HttpResponse('fallback')
-    }),
-  )
-})
-
 test('responds with the override mocked response', async ({
   network,
   page,
@@ -52,7 +44,13 @@ test('responds with the override mocked response', async ({
   expect(data).toBe('hello world')
 })
 
-test('responds with a fallback response', async ({ page }) => {
+test('responds with a fallback response', async ({ network, page }) => {
+  network.use(
+    http.get('*', () => {
+      return new HttpResponse('fallback')
+    }),
+  )
+
   await page.goto('/')
 
   const data = await page.evaluate(async () => {
@@ -61,4 +59,19 @@ test('responds with a fallback response', async ({ page }) => {
   })
 
   expect(data).toBe('fallback')
+})
+
+test('respects manual overrides added via `page.route`', async ({ page }) => {
+  await page.goto('/')
+
+  await page.route('/resource', (route) => {
+    return route.fulfill({ body: 'manual-override' })
+  })
+
+  const data = await page.evaluate(async () => {
+    const response = await fetch('/resource')
+    return response.text()
+  })
+
+  expect(data).toBe('manual-override')
 })
