@@ -99,7 +99,7 @@ class SetupPlaywrightApi extends SetupApi<LifeCycleEventsMap> {
           this.options.skipAssetRequests &&
           isCommonAssetRequest(fetchRequest)
         ) {
-          return route.fallback()
+          return this.safelyHandleRoute(() => route.fallback())
         }
 
         const handlers = this.handlersController
@@ -134,19 +134,21 @@ class SetupPlaywrightApi extends SetupApi<LifeCycleEventsMap> {
 
         if (response) {
           if (response.status === 0) {
-            return route.abort()
+            return this.safelyHandleRoute(() => route.abort())
           }
 
-          return route.fulfill({
-            status: response.status,
-            headers: Object.fromEntries(response.headers),
-            body: response.body
-              ? Buffer.from(await response.arrayBuffer())
-              : undefined,
+          return this.safelyHandleRoute(async () => {
+            return route.fulfill({
+              status: response.status,
+              headers: Object.fromEntries(response.headers),
+              body: response.body
+                ? Buffer.from(await response.arrayBuffer())
+                : undefined,
+            })
           })
         }
 
-        return route.fallback()
+        return this.safelyHandleRoute(() => route.fallback())
       },
     )
 
@@ -200,6 +202,30 @@ class SetupPlaywrightApi extends SetupApi<LifeCycleEventsMap> {
 
     // Encode/decode to preserve escape characters.
     return decodeURI(new URL(encodeURI(url)).origin)
+  }
+
+  private async safelyHandleRoute(
+    callback: () => Promise<void>,
+  ): Promise<void> {
+    try {
+      await callback()
+    } catch (error) {
+      /**
+       * @note Ignore "Route is already handled!" errors.
+       * Playwright has a bug where requests terminated due to navigation
+       * cause your in-flight route handlers to throw. There's no means to
+       * detect that scenario as both "route.handled" and "route._handlingPromise" are internal.
+       * @see https://github.com/mswjs/playwright/issues/35
+       */
+      if (
+        error instanceof Error &&
+        /route is already handled/i.test(error.message)
+      ) {
+        return
+      }
+
+      throw error
+    }
   }
 }
 
