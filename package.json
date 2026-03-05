@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@msw/playwright",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Mock Service Worker binding for Playwright",
   "main": "./build/index.mjs",
   "types": "./build/index.d.mts",
