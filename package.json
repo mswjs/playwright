@@ -17,6 +17,7 @@
     "app:dev": "vite dev",
     "app:build": "vite build",
     "app:start": "vite",
+    "lint": "publint",
     "build": "tsdown",
     "release": "release publish"
   },
@@ -57,6 +58,7 @@
     "@types/node": "^22.15.29",
     "@types/sinon": "^21.0.0",
     "msw": "^2.12.10",
+    "publint": "^0.3.18",
     "sinon": "^21.0.2",
     "tsdown": "^0.21.0",
     "typescript": "^5.9.3",
