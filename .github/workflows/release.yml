@@ -47,6 +47,9 @@ jobs:
       - name: Tests
         run: pnpm test
 
+      - name: Lint
+        run: pnpm lint
+
       - name: Release
         run: pnpm release
         env:
