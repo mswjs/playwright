@@ -6,4 +6,7 @@ export default defineConfig({
   outDir: './build',
   clean: true,
   dts: true,
+  deps: {
+    neverBundle: ['@playwright/test'],
+  },
 })
