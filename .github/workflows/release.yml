@@ -47,6 +47,9 @@ jobs:
       - name: Tests
         run: pnpm test
 
+      - name: Type tests
+        run: pnpm test:ts
+
       - name: Lint
         run: pnpm lint
 
