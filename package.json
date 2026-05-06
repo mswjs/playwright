@@ -50,7 +50,7 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "msw": "^2.12.10"
+    "msw": "^2.13.2"
   },
   "devDependencies": {
     "@epic-web/test-server": "^0.1.6",
@@ -58,7 +58,7 @@
     "@playwright/test": "^1.59.1",
     "@types/node": "^22.15.29",
     "@types/sinon": "^21.0.1",
-    "msw": "^2.12.14",
+    "msw": "^2.13.2",
     "publint": "^0.3.18",
     "sinon": "^21.0.3",
     "tsdown": "^0.21.7",

@@ -36,8 +36,8 @@ test('prints a warning on an unhandled request', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => fetch('/unhandled'))
 
-  expect.soft(consoleSpy.callCount).toBe(2)
-  expect(consoleSpy.getCall(1)?.args).toEqual([
+  expect.soft(consoleSpy.callCount).toBe(3)
+  expect(consoleSpy.getCall(2)?.args).toEqual([
     `[MSW] Warning: intercepted a request without a matching request handler:
 
   • GET http://localhost:5173/unhandled

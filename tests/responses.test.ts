@@ -1,6 +1,6 @@
 import { test as testBase, expect } from '@playwright/test'
 import { http, HttpResponse, type AnyHandler } from 'msw'
-import { defineNetworkFixture, type NetworkFixture } from '../src/fixture.js'
+import { defineNetworkFixture, type NetworkFixture } from '../src/index.js'
 
 interface Fixtures {
   handlers: Array<AnyHandler>
