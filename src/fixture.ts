@@ -32,7 +32,7 @@ export interface NetworkFixtureOptions {
   onUnhandledRequest?: UnhandledRequestStrategy
   /**
    * Skip common asset requests (e.g. `*.html`, `*.css`, `*.js`, etc).
-   * This improves performance for certian projects.
+   * This improves performance for certain projects.
    * @default true
    *
    * @see https://mswjs.io/docs/api/is-common-asset-request
