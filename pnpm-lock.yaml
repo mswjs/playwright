@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@mswjs/interceptors':
-        specifier: ^0.45.4
-        version: 0.45.4
+        specifier: ^0.45.5
+        version: 0.45.5(supports-color@5.5.0)
       outvariant:
         specifier: ^1.4.3
         version: 1.4.3
@@ -32,7 +32,7 @@ importers:
         version: 22.0.0
       msw:
         specifier: https://pkg.pr.new/msw@2692
-        version: https://pkg.pr.new/msw@2692(@types/node@22.20.4)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4))
+        version: https://pkg.pr.new/msw@2692(@types/node@22.20.4)(supports-color@5.5.0)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4))
       publint:
         specifier: ^0.3.24
         version: 0.3.24
@@ -50,7 +50,7 @@ importers:
         version: 8.3.1(@types/node@22.20.4)
       vitest:
         specifier: ^5.0.2
-        version: 5.0.2(@types/node@22.20.4)(msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)))(vite@8.3.1(@types/node@22.20.4))
+        version: 5.0.2(@types/node@22.20.4)(msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(supports-color@5.5.0)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)))(vite@8.3.1(@types/node@22.20.4))
 
 packages:
 
@@ -121,6 +121,10 @@ packages:
 
   '@mswjs/interceptors@0.45.4':
     resolution: {integrity: sha512-rb0BSMIztagrY9pEOClqXoLm+q2E0XKyRTQIfvYPI9SSUrEVKQb7CnZ3PoN72sGRLiV/JIP4ZxpEzDzR8O0dGQ==}
+    engines: {node: '>=22'}
+
+  '@mswjs/interceptors@0.45.5':
+    resolution: {integrity: sha512-q6pY5ivdMqWSyzbUzSb2KnLCZCis8rTOCACaQccm7EyH2qVub+gmYMzq+0V5JQF+nHNbZaSZaikc1jk0jwAOxA==}
     engines: {node: '>=22'}
 
   '@open-draft/deferred-promise@2.2.0':
@@ -1563,11 +1567,22 @@ snapshots:
 
   '@msw/url@0.1.2': {}
 
-  '@mswjs/interceptors@0.45.4':
+  '@mswjs/interceptors@0.45.4(supports-color@5.5.0)':
     dependencies:
       '@open-draft/until': 3.0.1
       '@types/debug': 4.1.13
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@5.5.0)
+      is-node-process: 1.2.0
+      outvariant: 1.4.3
+      rettime: 0.11.12
+    transitivePeerDependencies:
+      - supports-color
+
+  '@mswjs/interceptors@0.45.5(supports-color@5.5.0)':
+    dependencies:
+      '@open-draft/until': 3.0.1
+      '@types/debug': 4.1.13
+      debug: 4.4.3(supports-color@5.5.0)
       is-node-process: 1.2.0
       outvariant: 1.4.3
       rettime: 0.11.12
@@ -1800,14 +1815,14 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  '@vitest/mocker@5.0.2(msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)))(vite@8.3.1(@types/node@22.20.4))':
+  '@vitest/mocker@5.0.2(msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(supports-color@5.5.0)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)))(vite@8.3.1(@types/node@22.20.4))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.2
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
-      msw: https://pkg.pr.new/msw@2692(@types/node@22.20.4)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4))
+      msw: https://pkg.pr.new/msw@2692(@types/node@22.20.4)(supports-color@5.5.0)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4))
       vite: 8.3.1(@types/node@22.20.4)
 
   '@vitest/spy@5.0.2': {}
@@ -1976,9 +1991,11 @@ snapshots:
 
   dateformat@4.6.3: {}
 
-  debug@4.4.3:
+  debug@4.4.3(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
+    optionalDependencies:
+      supports-color: 5.5.0
 
   deep-extend@0.6.0: {}
 
@@ -2179,11 +2196,11 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)):
+  msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(supports-color@5.5.0)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)):
     dependencies:
       '@inquirer/confirm': 6.3.2(@types/node@22.20.4)
       '@msw/url': 0.1.2
-      '@mswjs/interceptors': 0.45.4
+      '@mswjs/interceptors': 0.45.4(supports-color@5.5.0)
       cookie: 2.0.1
       headers-polyfill: 5.0.1
       is-node-process: 1.2.0
@@ -2573,10 +2590,10 @@ snapshots:
       '@types/node': 22.20.4
       fsevents: 2.3.3
 
-  vitest@5.0.2(@types/node@22.20.4)(msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)))(vite@8.3.1(@types/node@22.20.4)):
+  vitest@5.0.2(@types/node@22.20.4)(msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(supports-color@5.5.0)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)))(vite@8.3.1(@types/node@22.20.4)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.2(msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)))(vite@8.3.1(@types/node@22.20.4))
+      '@vitest/mocker': 5.0.2(msw@https://pkg.pr.new/msw@2692(@types/node@22.20.4)(supports-color@5.5.0)(typescript@7.0.2)(vite@8.3.1(@types/node@22.20.4)))(vite@8.3.1(@types/node@22.20.4))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
