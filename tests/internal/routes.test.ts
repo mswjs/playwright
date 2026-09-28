@@ -5,6 +5,7 @@
  */
 import { test as testBase, expect } from '@playwright/test'
 import type { AnyHandler } from 'msw'
+import { NetworkReadyState } from 'msw/experimental'
 import { INTERNAL_MATCH_ALL_REG_EXP } from '../../src/fixture.js'
 import { defineNetworkFixture, type NetworkFixture } from '../../src/index.js'
 
@@ -24,7 +25,11 @@ const test = testBase.extend<Fixtures>({
 
       await network.enable()
       await use(network)
-      await network.disable()
+
+      // Some tests disable the network explicitly.
+      if (network.readyState === NetworkReadyState.ENABLED) {
+        await network.disable()
+      }
     },
     { auto: true },
   ],

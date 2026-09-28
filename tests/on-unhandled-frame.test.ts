@@ -15,7 +15,7 @@ const test = testBase.extend<Fixtures>({
       const network = defineNetworkFixture({
         context,
         handlers,
-        onUnhandledRequest: 'warn',
+        onUnhandledFrame: 'warn',
       })
 
       await network.enable()
@@ -36,13 +36,37 @@ test('prints a warning on an unhandled request', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => fetch('/unhandled'))
 
-  expect.soft(consoleSpy.callCount).toBe(2)
-  expect(consoleSpy.getCall(1)?.args).toEqual([
+  expect(consoleSpy.args).toContainEqual([
     `[MSW] Warning: intercepted a request without a matching request handler:
 
   • GET http://localhost:5173/unhandled
 
 If you still wish to intercept this unhandled request, please create a request handler for it.
 Read more: https://mswjs.io/docs/http/intercepting-requests`,
+  ])
+})
+
+test('prints a warning on an unhandled WebSocket connection', async ({
+  page,
+}) => {
+  const consoleSpy = sinon.stub(console, 'warn')
+
+  await page.goto('/')
+  await page.evaluate(() => {
+    const ws = new WebSocket('ws://localhost/unhandled')
+    return new Promise<void>((resolve) => {
+      ws.onerror = () => resolve()
+      ws.onclose = () => resolve()
+      ws.onopen = () => resolve()
+    })
+  })
+
+  expect(consoleSpy.args).toContainEqual([
+    `[MSW] Warning: intercepted a WebSocket connection without a matching event handler:
+
+  • ws://localhost/unhandled
+
+If you still wish to intercept this unhandled connection, please create an event handler for it.
+Read more: https://mswjs.io/docs/websocket`,
   ])
 })

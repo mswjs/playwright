@@ -58,7 +58,7 @@
     "@playwright/test": "^1.63.0",
     "@types/node": "^22.15.29",
     "@types/sinon": "^21.0.1",
-    "msw": "^2.15.0",
+    "msw": "https://pkg.pr.new/msw@2692",
     "publint": "^0.3.24",
     "sinon": "^21.0.3",
     "tsdown": "^0.23.0",

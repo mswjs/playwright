@@ -31,8 +31,8 @@ importers:
         specifier: ^21.0.1
         version: 21.0.1
       msw:
-        specifier: ^2.15.0
-        version: 2.15.0(@types/node@22.15.29)(typescript@5.9.3)
+        specifier: https://pkg.pr.new/msw@2692
+        version: https://pkg.pr.new/msw@2692(@types/node@22.15.29)(graphql@16.14.2)(typescript@5.9.3)(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2))
       publint:
         specifier: ^0.3.24
         version: 0.3.24
@@ -50,7 +50,7 @@ importers:
         version: 7.3.1(@types/node@22.15.29)(jiti@2.4.2)
       vitest:
         specifier: ^5.0.2
-        version: 5.0.2(@types/node@22.15.29)(msw@2.15.0(@types/node@22.15.29)(typescript@5.9.3))(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2))
+        version: 5.0.2(@types/node@22.15.29)(msw@https://pkg.pr.new/msw@2692(@types/node@22.15.29)(graphql@16.14.2)(typescript@5.9.3)(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2)))(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2))
 
 packages:
 
@@ -285,9 +285,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@mswjs/interceptors@0.41.3':
-    resolution: {integrity: sha512-cXu86tF4VQVfwz8W1SPbhoRyHJkti6mjH/XJIxp40jhO4j2k1m4KYrEykxqWPkFF3vrK4rgQppBh//AwyGSXPA==}
-    engines: {node: '>=18'}
+  '@msw/url@0.1.2':
+    resolution: {integrity: sha512-DdeBLQxQ+ZrtmwEmaj7GQ7lbzPCgbbbyAqOz/I4ulo68hwBpfdNvQJ5bmihJUkAAKOeCmqCIG3OFZGosqFN4mA==}
 
   '@mswjs/interceptors@0.45.4':
     resolution: {integrity: sha512-rb0BSMIztagrY9pEOClqXoLm+q2E0XKyRTQIfvYPI9SSUrEVKQb7CnZ3PoN72sGRLiV/JIP4ZxpEzDzR8O0dGQ==}
@@ -298,15 +297,6 @@ packages:
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
-
-  '@open-draft/deferred-promise@3.0.0':
-    resolution: {integrity: sha512-XW375UK8/9SqUVNVa6M0yEy8+iTi4QN5VZ7aZuRFQmy76LRwI9wy5F4YIBU6T+eTe2/DNDo8tqu8RHlwLHM6RA==}
-
-  '@open-draft/logger@0.3.0':
-    resolution: {integrity: sha512-X2g45fzhxH238HKO4xbSr7+wBS8Fvw6ixhTDuvLd5mqh6bJJCFAPwU9mPDxbcrRtfxv4u5IHCEH77BmxvXmmxQ==}
-
-  '@open-draft/until@2.1.0':
-    resolution: {integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==}
 
   '@open-draft/until@3.0.1':
     resolution: {integrity: sha512-s7/9ELP4aP9YZtW7RJaa0Xf3RISaRH9+EFN18FtykJYRHGNrl8f9ymvoNXzjhrjmftFvkQudtuDU9RYhk0xs3A==}
@@ -709,9 +699,6 @@ packages:
   '@types/sinonjs__fake-timers@15.0.1':
     resolution: {integrity: sha512-Ko2tjWJq8oozHzHV+reuvS5KYIRAokHnGbDwGh/J64LntgpbuylF74ipEL24HCyRjf9FOlBiBHWBR1RlVKsI1w==}
 
-  '@types/statuses@2.0.6':
-    resolution: {integrity: sha512-xMAgYwceFhRA2zY+XbEA7mxYbA093wdiW8Vu6gZPGWy9cmOyU9XesH1tNcEWsKFd5Vzrqx5T3D38PWx1FIIXkA==}
-
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
@@ -723,6 +710,7 @@ packages:
 
   '@vitest/mocker@5.0.2':
     resolution: {integrity: sha512-Z5FS00Q1SJHkB35xATsmWGdQ5WA1/0MV3CDjqyv7GavHv1OfOj145MNfHOlHk7QLes21dKFDHr8EO2zvL+9WGA==}
+    version: 5.0.2
     peerDependencies:
       msw: ^2.4.9
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -960,9 +948,9 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  cookie@1.1.1:
-    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
-    engines: {node: '>=18'}
+  cookie@2.0.1:
+    resolution: {integrity: sha512-yuToqVvRrj6pfDXREyQAAv8SkAEk/8GS3jQRTiUMm66TVtBYmqQeoEjL2Lmq8Rpo6271vH76InTChTitEAm65w==}
+    engines: {node: '>=22'}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
@@ -1192,14 +1180,21 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  msw@2.15.0:
-    resolution: {integrity: sha512-2wQAmKkQKxRuXvYJxVhPGG0wZNBQyD06oJvxqw90XqLvptdqxdlHrFUfEteKkpaNORX3Xzc+HtEl/q0nfmN2wQ==}
-    engines: {node: '>=18'}
+  msw@https://pkg.pr.new/msw@2692:
+    resolution: {tarball: https://pkg.pr.new/msw@2692}
+    version: 2.15.0
+    engines: {node: '>=22'}
     hasBin: true
     peerDependencies:
-      typescript: '>= 4.8.x'
+      graphql: '>=16'
+      typescript: '>=5.9.x'
+      vite: '>=6'
     peerDependenciesMeta:
+      graphql:
+        optional: true
       typescript:
+        optional: true
+      vite:
         optional: true
 
   mute-stream@3.0.0:
@@ -1233,9 +1228,6 @@ packages:
 
   package-manager-detector@1.8.0:
     resolution: {integrity: sha512-yQA4H19AmPEoMUeavPMDIe1higySl/gH/yaQrkT/s07Qp+7pp2hYz30N3z2l5BkjVkF9Ow6o0wjJamm2y7Sn0A==}
-
-  path-to-regexp@6.3.0:
-    resolution: {integrity: sha512-Yhpw4T9C6hPpgPeA28us07OJeqZ5EzQTkbfwuhsUg0c237RomFoETJgmp2sa3F/41gfLE6G5cqcYwznmeEeOlQ==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -1430,10 +1422,6 @@ packages:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
 
-  statuses@2.0.2:
-    resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
-    engines: {node: '>= 0.8'}
-
   std-env@4.2.0:
     resolution: {integrity: sha512-oCUKSupKTHX53EyjDtuZQ64pjLJ6yYCtpmEw0goYxtjG9KpbRe8KAsl2tBUGU9DyMcJ0RwJ8GqJAFzMXcXW1Rw==}
 
@@ -1442,9 +1430,6 @@ packages:
 
   stream-shift@1.0.3:
     resolution: {integrity: sha512-76ORR0DO1o1hlKwTbi/DM3EXWGf3ZJYO8cXX5RJwnul2DEg2oyoZyjLNoQM8WsvZiFKCRfC1O0J7iCvie3RZmQ==}
-
-  strict-event-emitter@0.5.1:
-    resolution: {integrity: sha512-vMgjE/GGEPEFnhFub6pa4FmJBRBVOLpIII2hvCZ8Kzb7K0hlHo7mQv6xYrBvCL2LtAIBwFUK8wvuJgTVSQ5MFQ==}
 
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
@@ -1654,6 +1639,7 @@ packages:
 
   vitest@5.0.2:
     resolution: {integrity: sha512-7MQrx9pDv5aHiUcovIb/70Ys3tgtkUVgCtledvKdCmEO+/1Dicq5ZqoSxOW034m03oqC+oHOKui2dM6qtMLoJg==}
+    version: 5.0.2
     engines: {node: ^22.12.0 || ^24.0.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
@@ -1913,14 +1899,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mswjs/interceptors@0.41.3':
-    dependencies:
-      '@open-draft/deferred-promise': 2.2.0
-      '@open-draft/logger': 0.3.0
-      '@open-draft/until': 2.1.0
-      is-node-process: 1.2.0
-      outvariant: 1.4.3
-      strict-event-emitter: 0.5.1
+  '@msw/url@0.1.2': {}
 
   '@mswjs/interceptors@0.45.4':
     dependencies:
@@ -1941,15 +1920,6 @@ snapshots:
     optional: true
 
   '@open-draft/deferred-promise@2.2.0': {}
-
-  '@open-draft/deferred-promise@3.0.0': {}
-
-  '@open-draft/logger@0.3.0':
-    dependencies:
-      is-node-process: 1.2.0
-      outvariant: 1.4.3
-
-  '@open-draft/until@2.1.0': {}
 
   '@open-draft/until@3.0.1': {}
 
@@ -2223,8 +2193,6 @@ snapshots:
 
   '@types/sinonjs__fake-timers@15.0.1': {}
 
-  '@types/statuses@2.0.6': {}
-
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 22.15.29
@@ -2235,14 +2203,14 @@ snapshots:
     dependencies:
       '@types/yargs-parser': 21.0.3
 
-  '@vitest/mocker@5.0.2(msw@2.15.0(@types/node@22.15.29)(typescript@5.9.3))(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2))':
+  '@vitest/mocker@5.0.2(msw@https://pkg.pr.new/msw@2692(@types/node@22.15.29)(graphql@16.14.2)(typescript@5.9.3)(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2)))(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.2
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
-      msw: 2.15.0(@types/node@22.15.29)(typescript@5.9.3)
+      msw: https://pkg.pr.new/msw@2692(@types/node@22.15.29)(graphql@16.14.2)(typescript@5.9.3)(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2))
       vite: 7.3.1(@types/node@22.15.29)(jiti@2.4.2)
 
   '@vitest/spy@5.0.2': {}
@@ -2404,7 +2372,7 @@ snapshots:
     dependencies:
       meow: 13.2.0
 
-  cookie@1.1.1: {}
+  cookie@2.0.1: {}
 
   core-util-is@1.0.3: {}
 
@@ -2534,7 +2502,8 @@ snapshots:
 
   graceful-fs@4.2.10: {}
 
-  graphql@16.14.2: {}
+  graphql@16.14.2:
+    optional: true
 
   has-flag@3.0.0: {}
 
@@ -2600,30 +2569,27 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@2.15.0(@types/node@22.15.29)(typescript@5.9.3):
+  msw@https://pkg.pr.new/msw@2692(@types/node@22.15.29)(graphql@16.14.2)(typescript@5.9.3)(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2)):
     dependencies:
       '@inquirer/confirm': 6.3.2(@types/node@22.15.29)
-      '@mswjs/interceptors': 0.41.3
-      '@open-draft/deferred-promise': 3.0.0
-      '@types/statuses': 2.0.6
-      cookie: 1.1.1
-      graphql: 16.14.2
+      '@msw/url': 0.1.2
+      '@mswjs/interceptors': 0.45.4
+      cookie: 2.0.1
       headers-polyfill: 5.0.1
       is-node-process: 1.2.0
       outvariant: 1.4.3
-      path-to-regexp: 6.3.0
-      picocolors: 1.1.1
       rettime: 0.11.12
-      statuses: 2.0.2
-      strict-event-emitter: 0.5.1
       tough-cookie: 6.0.2
       type-fest: 5.10.0
       until-async: 3.0.2
       yargs: 17.7.2
     optionalDependencies:
+      graphql: 16.14.2
       typescript: 5.9.3
+      vite: 7.3.1(@types/node@22.15.29)(jiti@2.4.2)
     transitivePeerDependencies:
       - '@types/node'
+      - supports-color
 
   mute-stream@3.0.0: {}
 
@@ -2644,8 +2610,6 @@ snapshots:
   package-manager-detector@1.6.0: {}
 
   package-manager-detector@1.8.0: {}
-
-  path-to-regexp@6.3.0: {}
 
   picocolors@1.1.1: {}
 
@@ -2895,8 +2859,6 @@ snapshots:
 
   split2@4.2.0: {}
 
-  statuses@2.0.2: {}
-
   std-env@4.2.0: {}
 
   stream-combiner2@1.1.1:
@@ -2905,8 +2867,6 @@ snapshots:
       readable-stream: 2.3.8
 
   stream-shift@1.0.3: {}
-
-  strict-event-emitter@0.5.1: {}
 
   string-width@4.2.3:
     dependencies:
@@ -3060,10 +3020,10 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.4.2
 
-  vitest@5.0.2(@types/node@22.15.29)(msw@2.15.0(@types/node@22.15.29)(typescript@5.9.3))(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2)):
+  vitest@5.0.2(@types/node@22.15.29)(msw@https://pkg.pr.new/msw@2692(@types/node@22.15.29)(graphql@16.14.2)(typescript@5.9.3)(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2)))(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.2(msw@2.15.0(@types/node@22.15.29)(typescript@5.9.3))(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2))
+      '@vitest/mocker': 5.0.2(msw@https://pkg.pr.new/msw@2692(@types/node@22.15.29)(graphql@16.14.2)(typescript@5.9.3)(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2)))(vite@7.3.1(@types/node@22.15.29)(jiti@2.4.2))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
