@@ -47,27 +47,27 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "peerDependencies": {
-    "msw": "^2.12.10"
+    "msw": ">=3"
   },
   "devDependencies": {
     "@epic-web/test-server": "^0.1.6",
-    "@ossjs/release": "^0.10.1",
-    "@playwright/test": "^1.59.1",
+    "@ossjs/release": "^0.11.2",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^22.15.29",
     "@types/sinon": "^21.0.1",
-    "msw": "^2.12.14",
-    "publint": "^0.3.18",
+    "msw": "^2.15.0",
+    "publint": "^0.3.24",
     "sinon": "^21.0.3",
-    "tsdown": "^0.21.7",
+    "tsdown": "^0.23.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
-    "vitest": "^4.1.2"
+    "vitest": "^5.0.2"
   },
   "dependencies": {
-    "@mswjs/interceptors": "^0.41.3",
+    "@mswjs/interceptors": "^0.45.4",
     "outvariant": "^1.4.3"
   }
 }
