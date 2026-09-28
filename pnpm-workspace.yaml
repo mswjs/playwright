@@ -1,0 +1,6 @@
+allowBuilds:
+  esbuild: true
+  msw: false
+minimumReleaseAgeExclude:
+  - '@mswjs/interceptors@0.45.5'
+  - msw@3.0.0

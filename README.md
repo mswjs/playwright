@@ -95,6 +95,6 @@ test('displays the user dashboard', async ({ network, page }) => {
 
 |                | `playwright-msw`                                                                      | `@msw/playwright`                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Initialization | `createWorkerFixture()` is used as a _part_ of your custom fixture.                   | `createNetworkFixture()` creates _the entire_ fixture for you, pre-configured.                     |
+| Initialization | `createWorkerFixture()` is used as a _part_ of your custom fixture.                   | `defineNetworkFixture()` creates _the entire_ fixture for you, pre-configured.                     |
 | Implementation | Uses a custom router to match handlers and a custom wrapper around `SetupWorker` API. | Uses MSW directly. Uses `page.route()` as the source of the network to route through the handlers. |
 | Feature set    | Supports `http` and `graphql` namespaces.                                             | Supports all namespaces (`http`, `graphql`, `ws`, any other APIs exposed by MSW in the future).    |
