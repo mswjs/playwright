@@ -6,7 +6,8 @@ import type {
   Route,
   WebSocketRoute,
 } from '@playwright/test'
-import { HttpResponse, isCommonAssetRequest } from 'msw'
+import { HttpResponse } from 'msw/http'
+import { isCommonAssetRequest } from 'msw/utils/is-common-asset-request'
 import {
   defineNetwork,
   HttpNetworkFrame,
@@ -19,20 +20,15 @@ import {
   type WebSocketClientEventMap,
   type WebSocketData,
   type WebSocketServerEventMap,
-  CancelableMessageEvent,
-  CancelableCloseEvent,
   WebSocketClientHandle,
   WebSocketServerHandle,
+  CancelableMessageEvent,
+  CancelableCloseEvent,
 } from '@mswjs/interceptors/WebSocket'
 
 export interface NetworkFixtureOptions {
   context: BrowserContext
   handlers?: DefineNetworkOptions<any>['handlers']
-  /**
-   * Specifies how to react to a network frame (e.g. a request or
-   * a WebSocket connection) that has no corresponding handler.
-   * @default 'bypass'
-   */
   onUnhandledFrame?: DefineNetworkOptions<any>['onUnhandledFrame']
   /**
    * Skip common asset requests (e.g. `*.html`, `*.css`, `*.js`, etc).

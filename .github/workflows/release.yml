@@ -50,7 +50,7 @@ jobs:
       - name: Type tests
         run: pnpm test:ts
 
-      - name: Lint
+      - name: Lint package
         run: pnpm lint
 
       - name: Release
