@@ -293,6 +293,15 @@ interface PlaywrightWebSocketNetworkFrameOptions {
   baseUrl?: string
 }
 
+/**
+ * The subprotocols the page passed to `new WebSocket(url, protocols)`.
+ * @note `WebSocketRoute.protocols()` is available since Playwright 1.60.
+ * Older versions do not expose the requested protocols.
+ */
+function getRequestedProtocols(route: WebSocketRoute): Array<string> {
+  return typeof route.protocols === 'function' ? route.protocols() : []
+}
+
 class PlaywrightWebSocketNetworkFrame extends WebSocketNetworkFrame {
   #route: WebSocketRoute
   #baseUrl?: string
@@ -303,10 +312,7 @@ class PlaywrightWebSocketNetworkFrame extends WebSocketNetworkFrame {
         client: new PlaywrightWebSocketClientConnection(options.route),
         server: new PlaywrightWebSocketServerConnection(options.route),
         info: {
-          /**
-           * @note Playwright does not expose the protocols requested by the client.
-           */
-          protocols: [],
+          protocols: getRequestedProtocols(options.route),
         },
       },
     })
